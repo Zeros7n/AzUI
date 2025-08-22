@@ -1,0 +1,12 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<!-- Core -->
+	<Script file='Core.lua'/>
+	<!-- Submodule -->
+	<Script file='General.lua'/>
+	<Script file='Gradient.lua'/>
+	<Script file='Informations.lua'/>
+	<Script file='Advanced.lua'/>
+	<Script file='Misc.lua'/>
+	<Include file='Modules\Load_Modules.xml'/>
+	<Script file='Skins.lua'/>
+</Ui>
