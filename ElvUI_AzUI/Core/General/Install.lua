@@ -2489,7 +2489,7 @@ end
 MER.installTable = {
 	["Name"] = "|cffff7d0aAzUI|r",
 	["Title"] = L["|cffff7d0aAzUI|r Installation"],
-	["tutorialImage"] = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzLogo.tga]],
+	["tutorialImage"] = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzUI_logo_Medium.tga]],
 	["tutorialImageSize"] = {256, 128},
 	["tutorialImagePoint"] = {0, 30},
 	["Pages"] = {

@@ -14,7 +14,7 @@ local UIFrameFadeIn = UIFrameFadeIn
 -- Credit for the Class logos: ADDOriN @DevianArt
 -- http://addorin.deviantart.com/gallery/43689290/World-of-Warcraft-Class-Logos
 
-local logo = "Interface\\AddOns\\ElvUI_AzUI\\Core\\Media\\Textures\\AzLogo.tga"
+local logo = "Interface\\AddOns\\ElvUI_AzUI\\Core\\Media\\Textures\\AzUI_logo_Large.tga"
 
 MER.NPCS = {
 	86470, -- AzLogo
