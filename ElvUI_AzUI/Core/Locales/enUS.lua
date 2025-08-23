@@ -34,8 +34,7 @@ L["Modules"] = true
 L["Media"] = true
 L["MER_DESC"] = [=[|cffffffffÄz|r|cffff7d0aUI|r is an extension of ElvUI. It adds:
 
-- The MerathilisUI Core version 5.85
-- Patch 25.8.1 resolves issues with Bindings.xml and minor bug fixes
+- Patch 25.8.2: Resolved issue with StaticPopups. Created a patch that defines a minimal safe popup so ElvUI's StaticPopups.lua no longer iterates a nil dialog.
 
 |cFF00c0faNote:|r It is compatible with most of other ElvUI plugins.
 But if you install another Layout over mine, you must adjust it manually.
