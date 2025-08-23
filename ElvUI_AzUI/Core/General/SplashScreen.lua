@@ -33,7 +33,7 @@ function MER:CreateSplash()
 
 	local tex = frame:CreateTexture()
 	tex:Point("CENTER", frame, "CENTER")
-	tex:SetTexture("Interface\\AddOns\\ElvUI_AzUI\\Core\\Media\\Textures\\AzUI_logo_Medium.tga")
+	tex:SetTexture("Interface\\AddOns\\ElvUI_AzUI\\Core\\Media\\Textures\\AzLogo.tga")
 	tex:Size(125, 125)
 
 	local version = frame:CreateFontString(nil, 'OVERLAY')
