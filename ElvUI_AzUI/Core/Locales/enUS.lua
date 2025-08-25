@@ -34,6 +34,7 @@ L["Modules"] = true
 L["Media"] = true
 L["MER_DESC"] = [=[|cffffffffÄz|r|cffff7d0aUI|r is an extension of ElvUI. It adds:
 
+- Patch 25.8.3: Resolved protected call to autobar issue.
 - Patch 25.8.2: Resolved issue with StaticPopups. Created a patch that defines a minimal safe popup so ElvUI's StaticPopups.lua no longer iterates a nil dialog.
 
 |cFF00c0faNote:|r It is compatible with most of other ElvUI plugins.

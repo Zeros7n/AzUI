@@ -1,6 +1,6 @@
 ## Interface: 11403
 ## Author: Äz
-## Version: 25.8.2
+## Version: 25.8.3
 ## Title: |cFF1784d1ElvUI|r |Az|r|cffff7d0aUI|r
 ## Notes: A decorative edit for ElvUI + additional features.
 ## Notes-deDE: Eine dekorative Erweiterung für ElvUI + einige zusätzliche Funktionen.
