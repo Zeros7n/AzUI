@@ -132,7 +132,9 @@ local function SetupChat()
 	-- Join LFG channel in Classic and TBC (English client only)
 	if not E.Retail and MER.Locale == 'enUS' then
 		JoinPermanentChannel('LookingForGroup')
-		ChatFrame_AddChannel(_G.ChatFrame1, 'LookingForGroup')
+		if ChatFrame_AddChannel then
+			ChatFrame_AddChannel(_G.ChatFrame1, 'LookingForGroup')
+		end
 	end
 
 	-- Open one new channel for own Trade
@@ -163,7 +165,9 @@ local function SetupChat()
 	end
 
 	ChatFrame_RemoveChannel(_G.ChatFrame4, L["Trade"])
-	ChatFrame_AddChannel(_G.ChatFrame1, L["Trade"])
+	if ChatFrame_AddChannel then
+		ChatFrame_AddChannel(_G.ChatFrame1, L["Trade"])
+	end
 
 	ChatFrame_AddMessageGroup(_G.ChatFrame1, "TARGETICONS")
 	ChatFrame_AddMessageGroup(_G.ChatFrame4, "COMBAT_FACTION_CHANGE")
@@ -2489,7 +2493,7 @@ end
 MER.installTable = {
 	["Name"] = "|cffff7d0aAzUI|r",
 	["Title"] = L["|cffff7d0aAzUI|r Installation"],
-	["tutorialImage"] = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzLogo.tga]],
+	["tutorialImage"] = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzUI_Banner.tga]],
 	["tutorialImageSize"] = {256, 128},
 	["tutorialImagePoint"] = {0, 30},
 	["Pages"] = {

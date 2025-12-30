@@ -7,7 +7,7 @@ local CreateTextureMarkup = CreateTextureMarkup
 local IsAddOnLoaded = IsAddOnLoaded
 
 local newSignIgnored = [[|TInterface\OptionsFrame\UI-OptionsFrame-NewFeatureIcon:14:14|t]]
-local logo = CreateTextureMarkup("Interface/AddOns/ElvUI_AzUI/Core/Media/textures/AzLogo", 64, 64, 20, 20, 0, 1, 0, 1, 0, -1)
+local logo = CreateTextureMarkup("Interface/AddOns/ElvUI_AzUI/Core/Media/Textures/AzUI_Banner", 64, 64, 20, 20, 0, 1, 0, 1, 0, -1)
 
 MER.options = {
 	general = {
@@ -67,7 +67,7 @@ MER.options = {
 }
 
 function MER:OptionsCallback()
-	local icon = F.GetIconString(MER.Media.Textures.AzLogo, 14)
+	local icon = F.GetIconString(MER.Media.Textures.AzUI_Banner, 14)
 	E.Options.name = E.Options.name.." + " .. icon .. " " ..MER.Title.. format(": |cFF00c0fa%s|r", MER.Version)
 
 	-- Main options
@@ -89,7 +89,7 @@ function MER:OptionsCallback()
 				type = "description",
 				name = L["MER_DESC"]..newSignIgnored,
 				fontSize = "medium",
-				image = function() return "Interface\\AddOns\\ElvUI_AzUI\\Core\\Media\\Textures\\AzLogo.tga", 200, 200 end,
+				image = function() return "Interface\\AddOns\\ElvUI_AzUI\\Core\\Media\\Textures\\AzUI_Banner.tga", 200, 200 end,
 			},
 			install = {
 				order = 3,

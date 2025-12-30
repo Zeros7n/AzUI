@@ -6,6 +6,7 @@ local U = MER.Utilities.Async
 local ipairs = ipairs
 local pairs = pairs
 local select = select
+local tostring = tostring
 local type = type
 
 local Item = Item
@@ -35,17 +36,41 @@ function U.WithItemID(itemID, callback)
 		return cache.item[itemID]
 	end
 
-	local itemInstance = Item:CreateFromItemID(itemID)
-	if itemInstance:IsItemEmpty() then
-		F.Developer.LogDebug("Failed to create item instance for itemID: " .. itemID)
+	local success, itemInstance = pcall(Item.CreateFromItemID, Item, itemID)
+	if not success or not itemInstance then
+		if F.Developer and F.Developer.LogDebug then
+			local errorMessage = success and "Unknown error" or itemInstance
+			F.Developer.LogDebug(("Failed to create item instance for itemID: %s. Error: %s"):format(itemID, errorMessage))
+		end
 		return
 	end
 
-	itemInstance:ContinueOnItemLoad(
+	if itemInstance:IsItemEmpty() then
+		if F.Developer and F.Developer.LogDebug then
+			F.Developer.LogDebug("Failed to create item instance for itemID: " .. itemID)
+		end
+		return
+	end
+
+	local resolvedItemID = itemInstance:GetItemID()
+	if type(resolvedItemID) ~= "number" then
+		if F.Developer and F.Developer.LogDebug then
+			F.Developer.LogDebug(("Aborting ContinueOnItemLoad for invalid itemID: %s"):format(tostring(itemID)))
+		end
+		return
+	end
+
+	local ok, err = pcall(
+		itemInstance.ContinueOnItemLoad,
+		itemInstance,
 		function()
 			callback(itemInstance)
 		end
 	)
+	if not ok and F.Developer and F.Developer.LogDebug then
+		F.Developer.LogDebug(("ContinueOnItemLoad failed for itemID %s. Error: %s"):format(itemID, err or "Unknown"))
+		return
+	end
 
 	cache.item[itemID] = itemInstance
 
@@ -183,11 +208,25 @@ function U.WithItemSlotID(itemSlotID, callback)
 		return
 	end
 
-	itemInstance:ContinueOnItemLoad(
+	local resolvedItemID = itemInstance:GetItemID()
+	if type(resolvedItemID) ~= "number" then
+		if F.Developer and F.Developer.LogDebug then
+			F.Developer.LogDebug(("Aborting ContinueOnItemLoad for equipment slot %s: invalid item reference"):format(itemSlotID))
+		end
+		return
+	end
+
+	local ok, err = pcall(
+		itemInstance.ContinueOnItemLoad,
+		itemInstance,
 		function()
 			callback(itemInstance)
 		end
 	)
+	if not ok and F.Developer and F.Developer.LogDebug then
+		F.Developer.LogDebug(("ContinueOnItemLoad failed for equipment slot %s. Error: %s"):format(itemSlotID, err or "Unknown"))
+		return
+	end
 
 	return itemInstance
 end

@@ -6,6 +6,18 @@ local pairs = pairs
 local pcall = pcall
 local tinsert = table.insert
 
+if type(_G.EnableAddOn) ~= "function" then
+	_G.EnableAddOn = function()
+		return
+	end
+end
+
+if type(_G.IsAddOnLoaded) ~= "function" then
+	_G.IsAddOnLoaded = function()
+		return false
+	end
+end
+
 local GetAddOnMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
 local GetBuildInfo = GetBuildInfo
 local GetMaxLevelForPlayerExpansion = GetMaxLevelForPlayerExpansion
@@ -29,8 +41,8 @@ MER.MaxLevelForPlayerExpansion = E.Retail and GetMaxLevelForPlayerExpansion()
 -- Masque support
 MER.MSQ = _G.LibStub('Masque', true)
 
-MER.Logo = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzLogo.tga]]
-MER.LogoSmall = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzLogo.tga]]
+MER.Logo = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzUI_Banner.tga]]
+MER.LogoSmall = [[Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzUI_Banner.tga]]
 
 MER.ClassColor = _G.RAID_CLASS_COLORS[E.myclass]
 MER.InfoColor = "|cFF00c0fa" --Info Color RGB: 0, .75, .98

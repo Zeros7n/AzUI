@@ -6,8 +6,37 @@ local _G = _G
 local getn = getn
 
 local hooksecurefunc = hooksecurefunc
-local IsAddOnLoaded = IsAddOnLoaded
+local IsAddOnLoaded = _G.IsAddOnLoaded
+if type(IsAddOnLoaded) ~= "function" then
+	IsAddOnLoaded = function()
+		return false
+	end
+end
 local C_TimerAfter = C_Timer.After
+
+local function HideCharacterDropDown(frame)
+	if not frame or frame.__MERHideCharacter then
+		return
+	end
+
+	frame:HookScript("OnShow", function(self)
+		local characterFrame = _G.CharacterFrame
+		if characterFrame and characterFrame:IsShown() then
+			self:Hide()
+		end
+	end)
+
+	frame.__MERHideCharacter = true
+end
+
+local function HideCharacterDropDowns()
+	for level = 1, (_G.UIDROPDOWNMENU_MAXLEVELS or 4) do
+		HideCharacterDropDown(_G["DropDownList" .. level])
+	end
+	for level = 1, (_G.L_UIDROPDOWNMENU_MAXLEVELS or 4) do
+		HideCharacterDropDown(_G["L_DropDownList" .. level])
+	end
+end
 
 local MAX_STATIC_POPUPS = 4
 
@@ -43,6 +72,12 @@ local function LoadSkin()
     --DropDownMenu
     hooksecurefunc("UIDropDownMenu_CreateFrames", function(level, index)
         local listFrame = _G["DropDownList"..level]
+        if not listFrame then
+            return
+        end
+
+        HideCharacterDropDown(listFrame)
+        HideCharacterDropDowns()
         local listFrameName = listFrame:GetName()
 
         local Backdrop = _G[listFrameName.."Backdrop"]
@@ -87,8 +122,31 @@ local function LoadSkin()
                 module:CreateShadow(menuBackdropFrame)
             else
             end
+
+            for level = 1, (_G.L_UIDROPDOWNMENU_MAXLEVELS or 4) do
+                HideCharacterDropDown(_G["L_DropDownList"..level])
+            end
+            HideCharacterDropDowns()
         end)
+
+        for level = 1, (_G.L_UIDROPDOWNMENU_MAXLEVELS or 4) do
+            HideCharacterDropDown(_G["L_DropDownList"..level])
+        end
+        HideCharacterDropDowns()
     end
+
+    for level = 1, (_G.UIDROPDOWNMENU_MAXLEVELS or 4) do
+        HideCharacterDropDown(_G["DropDownList"..level])
+    end
+    HideCharacterDropDowns()
+
+	local function HideCharacterDropdownsOnShow()
+		HideCharacterDropDowns()
+	end
+
+	if _G.CharacterFrame then
+		_G.CharacterFrame:HookScript("OnShow", HideCharacterDropdownsOnShow)
+	end
 
     -- Added checks for other global frames
     if _G.CopyChatFrame then

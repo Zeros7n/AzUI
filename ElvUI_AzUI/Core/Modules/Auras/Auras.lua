@@ -4,11 +4,17 @@ local S = MER:GetModule('MER_Skins')
 local A = E:GetModule("Auras")
 
 function module:Auras_SkinIcon(_, button)
+	if not button then
+		return
+	end
+
 	if not button.__MERSkin then
 		S:CreateLowerShadow(button)
 		S:BindShadowColorWithBorder(button.MERshadow, button)
 		button.__MERSkin = true
 	end
+
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 end
 
 function module:Auras_Shadow()

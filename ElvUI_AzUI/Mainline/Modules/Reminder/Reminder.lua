@@ -5,8 +5,10 @@ local S = E:GetModule('Skins')
 local LCG = E.Libs.CustomGlow
 
 local _G = _G
-local pairs, select, type, unpack= pairs, select, type, unpack
+local ipairs, pairs, select, type, unpack = ipairs, pairs, select, type, unpack
 local tinsert = table.insert
+local GameTooltip = _G.GameTooltip
+local GameTooltip_Hide = _G.GameTooltip_Hide
 
 local AuraUtil_FindAuraByName = AuraUtil.FindAuraByName
 local C_PaperDollInfo_OffhandHasWeapon = C_PaperDollInfo.OffhandHasWeapon
@@ -23,6 +25,49 @@ local IsUsableSpell = IsUsableSpell
 local UnitInVehicle = UnitInVehicle
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitLevel = UnitLevel
+
+local FLASK_SPELLS = {
+	370652, -- Phial of Static Empowerment
+	370661, -- Phial of Icy Preservation
+	371172, -- Phial of Tepid Versatility
+	371186, -- Charged Phial of Alacrity
+	371204, -- Phial of Still Air
+	371339, -- Phial of Elemental Chaos
+	371354, -- Phial of the Eye in the Storm
+	371386, -- Phial of Charged Isolation
+	373257, -- Phial of Glacial Fury
+	374000, -- Iced Phial of Corrupting Rage
+}
+
+local SPEC_FLASK_RECOMMENDATIONS = {
+	[259] = 371339, -- Assassination: Elemental Chaos for crit/caster support
+	[260] = 371186, -- Outlaw: Charged Phial of Alacrity for haste
+	[261] = 370652, -- Subtlety: Phial of Static Empowerment for agility bursts
+}
+
+local function BuildSpellGroup(list)
+	local spells = {}
+	if list then
+		for _, spellID in ipairs(list) do
+			spells[spellID] = true
+		end
+		spells.defaultIcon = list[1]
+	end
+	return spells
+end
+
+local function GetSpecFlaskSpell(db)
+	if not db then
+		return nil
+	end
+
+	local specID = E.Retail and GetSpecialization()
+	if specID and db.flaskSpecSpell and db.flaskSpecSpell[specID] then
+		return db.flaskSpecSpell[specID]
+	end
+
+	return db.spellGroup and db.spellGroup.defaultIcon
+end
 
 module.CreatedReminders = {}
 
@@ -67,21 +112,13 @@ module.ReminderList = {
 	},
 
 	ROGUE = {
-		[1] = { -- Poisons
-			["spellGroup"] = {
-				[8679] = true,	 -- Wound Poison
-				[2823] = true,	 -- Deadly Poison
-				[3408] = true,	 -- Crippling Poison
-				[5761] = true, -- Numbing Poison
-				[108211] = true, -- Leeching Poison
-				[315584] = true, -- Instant Poison
-				["defaultIcon"] = 2823,
-			},
+		[1] = { -- Flasks
+			["spellGroup"] = BuildSpellGroup(FLASK_SPELLS),
+			["flaskSpecSpell"] = SPEC_FLASK_RECOMMENDATIONS,
 			["enable"] = true,
 			["instance"] = true,
 			["pvp"] = true,
 			["strictFilter"] = true,
-			--["tree"] = 1,
 		},
 	},
 
@@ -153,7 +190,7 @@ module.ReminderList = {
 		},
 	},
 
-	EVOKER = {
+	 EVOKER = {
 		[1] = { -- Blessing of the Bronze
 			["spellGroup"] = {
 				[381748] = true, -- Blessing of the Bronze
@@ -166,6 +203,34 @@ module.ReminderList = {
 		},
 	},
 }
+
+local function ReminderFrame_OnEnter(self)
+	if not GameTooltip then
+		return
+	end
+
+	local specID = E.Retail and GetSpecialization()
+	local flaskSpell = GetSpecFlaskSpell(self.db)
+	local flaskName = flaskSpell and GetSpellInfo(flaskSpell)
+
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
+	GameTooltip:SetText(flaskName or L["Flasks"], 1, 1, 1, true)
+
+	if specID then
+		local _, specName = GetSpecializationInfo(specID)
+		if specName then
+			GameTooltip:AddLine(specName, 0.8, 0.8, 0.8)
+		end
+	end
+
+	GameTooltip:Show()
+end
+
+local function ReminderFrame_OnLeave()
+	if GameTooltip_Hide then
+		GameTooltip_Hide()
+	end
+end
 
 function module:PlayerHasFilteredBuff(frame, db, checkPersonal)
 	for buff, value in pairs(db) do
@@ -335,6 +400,7 @@ function module:ReminderIcon_OnEvent(event, unit)
 	if (event == "UNIT_AURA" and unit ~= "player") then return end
 
 	local db = module.ReminderList[E.myclass][self.groupName]
+	local activeTree = E.Retail and GetSpecialization()
 
 	self.cooldown:Hide()
 	self:SetAlpha(0)
@@ -371,7 +437,10 @@ function module:ReminderIcon_OnEvent(event, unit)
 				end
 
 				if (usable or nomana) or not db.strictFilter or self.ForceShow then
-					self.icon:SetTexture(select(3, GetSpellInfo(db.spellGroup.defaultIcon)))
+					local iconSpell = db.flaskSpecSpell and db.flaskSpecSpell[activeTree] or db.spellGroup.defaultIcon
+					if iconSpell then
+						self.icon:SetTexture(select(3, GetSpellInfo(iconSpell)))
+					end
 					break
 				end
 			end
@@ -467,7 +536,6 @@ function module:ReminderIcon_OnEvent(event, unit)
 		return
 	end
 
-	local activeTree = E.Retail and GetSpecialization()
 	if db.spellGroup and not db.weaponCheck then
 		if filterCheck and ((not hasBuff) and (not hasDebuff)) and not db.reverseCheck then
 			self:SetAlpha(1)
@@ -503,6 +571,7 @@ end
 
 function module:CreateReminder(name, index)
 	if module.CreatedReminders[name] or not E.db.unitframe.units.player.enable then return end
+	local db = module.ReminderList[E.myclass][name]
 
 	local size = module.db.size or 30
 	local ElvFrame = _G.ElvUF_Player
@@ -544,6 +613,9 @@ function module:CreateReminder(name, index)
 	button:RegisterUnitEvent("UNIT_AURA", "player")
 	button:RegisterEvent("PLAYER_ENTERING_WORLD")
 	button:SetScript("OnEvent", module.ReminderIcon_OnEvent)
+	button:SetScript("OnEnter", ReminderFrame_OnEnter)
+	button:SetScript("OnLeave", ReminderFrame_OnLeave)
+	button.db = db
 
 	tinsert(module.CreatedReminders, button)
 end

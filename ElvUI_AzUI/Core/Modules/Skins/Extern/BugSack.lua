@@ -1,7 +1,10 @@
 local MER, F, E, L, V, P, G = unpack(ElvUI_AzUI)
 local module = MER:GetModule('MER_Skins')
 local S = E:GetModule('Skins')
-if not IsAddOnLoaded("BugSack") then return; end
+local IsAddOnLoaded = _G.IsAddOnLoaded
+if type(IsAddOnLoaded) ~= "function" or not IsAddOnLoaded("BugSack") then
+	return
+end
 
 local _G = _G
 
@@ -134,7 +137,11 @@ function module:BugSack()
 		return
 	end
 
-	module:SecureHookScript(_G.BugSack.frame, "OnShow", "BugSack_InterfaceOptionOnShow")
+	local optionsFrame = _G.BugSack.frame
+	if optionsFrame and type(optionsFrame) == "table" and type(optionsFrame.IsObjectType) == "function" and optionsFrame:IsObjectType("Frame") then
+		module:SecureHookScript(optionsFrame, "OnShow", "BugSack_InterfaceOptionOnShow")
+	end
+
 	module:SecureHook(_G.BugSack, "OpenSack", "BugSack_OpenSack")
 	module:DisableAddOnSkins("BugSack", false)
 end

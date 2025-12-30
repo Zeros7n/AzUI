@@ -383,7 +383,7 @@ function module:CreateButtons()
 				animGroup:Play()
 			end
 
-			local icon = F.GetIconString(MER.Media.Textures.AzLogo, 14)
+			local icon = F.GetIconString(MER.Media.Textures.AzUI_Banner, 14)
 			self:SetBackdropBorderColor(.7, .7, 0)
 			if module.db.tooltip then
 				GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")

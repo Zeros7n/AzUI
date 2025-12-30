@@ -4,6 +4,7 @@ local LSM = E.LSM or E.Libs.LSM
 MER.Media = {
 	Icons = {},
 	Textures = {},
+	Backgrounds = {},
 }
 
 local MediaPath = "Interface/Addons/ElvUI_AzUI/Core/Media/"
@@ -159,7 +160,7 @@ MER.ClassIcons = {
 	["EVOKER"] = "Interface/AddOns/ElvUI_AzUI/Core/Media/Icons/ClassIcon/Evoker",
 }
 
-AddMedia("smallLogo", "AzLogo.tga", "Textures")
+AddMedia("smallLogo", "AzUI_Banner.tga", "Textures")
 
 AddMedia("barAchievements", "MicroBar/Achievements.tga", "Icons")
 AddMedia("barBags", "MicroBar/Bags.tga", "Icons")
@@ -220,12 +221,14 @@ AddMedia("sort", "Sort.tga", "Icons")
 AddMedia("anchor", "anchor.tga", "Textures")
 AddMedia("arrow", "arrow.tga", "Textures")
 AddMedia("arrowUp", "arrowUp.tga", "Textures")
-AddMedia("AzLogo", "AzLogo.tga", "Textures")
+AddMedia("AzUI_Banner", "AzUI_Banner.tga", "Textures")
+AddMedia("AzBanner", "AzUI_Banner.tga", "Textures")
 AddMedia("ROLES", "UI-LFG-ICON-ROLES.tga", "Textures")
 AddMedia("exchange", "Exchange.tga", "Textures")
 AddMedia("Pushed", "pushed.tga", "Textures")
 
-AddMedia("AzLogoArt", "AzLogoArt.tga", "Textures")
+AddMedia("AzLogoArt", "AzUI_Banner.tga", "Textures")
+AddMedia("merathilisLogo", "merathilis_logo.tga", "Textures")
 AddMedia("PepoLove", "pepoLove.tga", "Textures")
 AddMedia("PepoBedge", "bedge.tga", "Textures")
 
@@ -270,6 +273,23 @@ AddMedia("materialDPS", "RoleIcons/Material/DPS.tga", "Textures")
 AddMedia("emptyTex", "bgTex.blp", "Textures")
 AddMedia("glowTex", "glowTex.blp", "Textures")
 AddMedia("MinimapDifficulty", "minimap-difficulty.tga", "Textures")
+
+AddMedia("BG1", "Armory/BG1.tga", "Backgrounds")
+AddMedia("BG2", "Armory/BG2.tga", "Backgrounds")
+AddMedia("BG3", "Armory/BG3.tga", "Backgrounds")
+AddMedia("MERATHILISUI-DEATHKNIGHT", "Armory/MERATHILISUI-DEATHKNIGHT.tga", "Backgrounds")
+AddMedia("MERATHILISUI-DEMONHUNTER", "Armory/MERATHILISUI-DEMONHUNTER.tga", "Backgrounds")
+AddMedia("MERATHILISUI-DRUID", "Armory/MERATHILISUI-DRUID.tga", "Backgrounds")
+AddMedia("MERATHILISUI-EVOKER", "Armory/MERATHILISUI-EVOKER.tga", "Backgrounds")
+AddMedia("MERATHILISUI-HUNTER", "Armory/MERATHILISUI-HUNTER.tga", "Backgrounds")
+AddMedia("MERATHILISUI-MAGE", "Armory/MERATHILISUI-MAGE.tga", "Backgrounds")
+AddMedia("MERATHILISUI-MONK", "Armory/MERATHILISUI-MONK.tga", "Backgrounds")
+AddMedia("MERATHILISUI-PALADIN", "Armory/MERATHILISUI-PALADIN.tga", "Backgrounds")
+AddMedia("MERATHILISUI-PRIEST", "Armory/MERATHILISUI-PRIEST.tga", "Backgrounds")
+AddMedia("MERATHILISUI-ROGUE", "Armory/MERATHILISUI-ROGUE.tga", "Backgrounds")
+AddMedia("MERATHILISUI-SHAMAN", "Armory/MERATHILISUI-SHAMAN.tga", "Backgrounds")
+AddMedia("MERATHILISUI-WARLOCK", "Armory/MERATHILISUI-WARLOCK.tga", "Backgrounds")
+AddMedia("MERATHILISUI-WARRIOR", "Armory/MERATHILISUI-WARRIOR.tga", "Backgrounds")
 
 -- Fonts
 LSM:Register("font","Prototype", [[Interface\AddOns\ElvUI_AzUI\Core\Media\Fonts\PROTOTYPE.TTF]])

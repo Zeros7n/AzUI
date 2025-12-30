@@ -353,7 +353,12 @@ do
 		return frame[element] or FrameName and (_G[FrameName..element] or strfind(FrameName, element)) or nil
 	end
 
-	function module:HandleScrollBar(_, frame)
+function module:HandleScrollBar(_, frame)
+		frame = frame or _
+		if not frame then
+			return
+		end
+
 		local Thumb = GrabScrollBarElement(frame, 'ThumbTexture') or GrabScrollBarElement(frame, 'thumbTexture') or frame.GetThumbTexture and frame:GetThumbTexture()
 
 		if Thumb and Thumb.backdrop then

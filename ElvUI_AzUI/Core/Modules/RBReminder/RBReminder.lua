@@ -1,8 +1,33 @@
 local MER, F, E, L, V, P, G = unpack(ElvUI_AzUI)
 local module = MER:GetModule('MER_RaidBuffs')
+module.db = (E.db.mui and E.db.mui.raidBuffs) or {}
 local LCG = E.Libs.CustomGlow
 
+local GameTooltip = _G.GameTooltip
+local GameTooltip_Hide = _G.GameTooltip_Hide
+
+local function BuffFrame_OnEnter(frame)
+	if not GameTooltip or not frame then
+		return
+	end
+
+	local tooltipText = (frame.hasBuff and frame.buffName) or frame.defaultName or frame:GetName()
+	if not tooltipText then
+		return
+	end
+
+	GameTooltip:SetOwner(frame, "ANCHOR_BOTTOMRIGHT")
+	GameTooltip:SetText(tooltipText, 1, 1, 1, true)
+end
+
+local function BuffFrame_OnLeave()
+	if GameTooltip_Hide then
+		GameTooltip_Hide()
+	end
+end
+
 local ipairs, pairs, select, unpack = ipairs, pairs, select, unpack
+local tinsert = table.insert
 
 local CreateFrame = CreateFrame
 local RegisterStateDriver = RegisterStateDriver
@@ -11,6 +36,8 @@ local GetSpellInfo = GetSpellInfo
 local AuraUtil_FindAuraByName = AuraUtil.FindAuraByName
 local GetWeaponEnchantInfo = GetWeaponEnchantInfo
 local GetInventoryItemTexture = GetInventoryItemTexture
+local CancelUnitBuff = CancelUnitBuff
+local UnitBuff = UnitBuff
 
 local r, g, b = unpack(E["media"].rgbvaluecolor)
 local color = {r, g, b, 1}
@@ -82,6 +109,38 @@ module.ReminderBuffs = {
 	},
 }
 
+if not E.Retail then
+	local CLASSIC_REMINDER_BUFFS = {
+		Flask = {13510, 13511, 13512, 13513, 13518, 22808, 22832, 22861, 22810, 22809},
+		Intellect = {1460, 1461, 10156, 10157, 27126, 1459, 23028},
+		Stamina = {21562, 21564, 10938, 10937},
+		AttackPower = {6673, 5242, 5212},
+		Versatility = {1126, 5232, 21849},
+	}
+	for category, list in pairs(CLASSIC_REMINDER_BUFFS) do
+		module.ReminderBuffs[category] = module.ReminderBuffs[category] or {}
+		for _, spellID in ipairs(list) do
+			tinsert(module.ReminderBuffs[category], spellID)
+		end
+	end
+end
+
+local function FilterSpellList(list)
+	local filtered = {}
+	if list then
+		for _, spellID in ipairs(list) do
+			if GetSpellInfo(spellID) then
+				tinsert(filtered, spellID)
+			end
+		end
+	end
+	return filtered
+end
+
+for _, category in ipairs({"Flask", "DefiledAugmentRune", "Food", "Intellect", "Stamina", "AttackPower", "Versatility", "Cooldown_Reduce"}) do
+	module.ReminderBuffs[category] = FilterSpellList(module.ReminderBuffs[category])
+end
+
 module.Weapon_Enchants = {
 	6188, -- Shadowcore Oil
 	6190, -- Embalmer's Oil
@@ -109,206 +168,160 @@ local versatilitybuffs = module.ReminderBuffs["Versatility"]
 local custombuffs = module.ReminderBuffs["Custom"]
 local weaponEnch = module.ReminderBuffs["Weapon"]
 
-local function OnAuraChange(self, event, arg1, unit)
-	if (event == "UNIT_AURA" and arg1 ~= "player") then return end
-	module.db = E.db.mui.raidBuffs
-
-	if (flaskbuffs and flaskbuffs[1]) then
-		FlaskFrame.t:SetTexture(select(3, GetSpellInfo(flaskbuffs[1])))
-		for i, flaskbuffs in pairs(flaskbuffs) do
-			local spellname = select(1, GetSpellInfo(flaskbuffs))
-			if AuraUtil_FindAuraByName(spellname, "player") then
-				FlaskFrame.t:SetTexture(select(3, GetSpellInfo(flaskbuffs)))
-				FlaskFrame:SetAlpha(module.db.alpha)
-				LCG.PixelGlow_Stop(FlaskFrame)
-				break
-			else
-				FlaskFrame:SetAlpha(1)
-				if module.db.glow then
-					LCG.PixelGlow_Start(FlaskFrame, color, nil, -0.25, nil, 1)
-				end
-			end
+local function GetTooltipName(spellList, fallbackSpellID)
+	if fallbackSpellID then
+		local name = GetSpellInfo(fallbackSpellID)
+		if name then
+			return name
 		end
 	end
 
-	if (foodbuffs and foodbuffs[1]) then
-		FoodFrame.t:SetTexture(select(3, GetSpellInfo(foodbuffs[1])))
-		for i, foodbuffs in pairs(foodbuffs) do
-			local spellname = select(1, GetSpellInfo(foodbuffs))
-			if AuraUtil_FindAuraByName(spellname, "player") then
-				FoodFrame.t:SetTexture(select(3, GetSpellInfo(foodbuffs)))
-				FoodFrame:SetAlpha(module.db.alpha)
-				LCG.PixelGlow_Stop(FoodFrame)
-				break
-			else
-				FoodFrame:SetAlpha(1)
-				FoodFrame.t:SetTexture(select(3, GetSpellInfo(foodbuffs)))
-				if module.db.glow then
-					LCG.PixelGlow_Start(FoodFrame, color, nil, -0.25, nil, 1)
-				end
+	if spellList then
+		for _, spellID in ipairs(spellList) do
+			local name = GetSpellInfo(spellID)
+			if name then
+				return name
 			end
 		end
-	end
-
-	--[[
-	if (darunebuffs and darunebuffs[1]) then
-		DARuneFrame.t:SetTexture(select(3, GetSpellInfo(darunebuffs[1])))
-		for i, darunebuffs in pairs(darunebuffs) do
-			local spellname = select(1, GetSpellInfo(darunebuffs))
-			if AuraUtil_FindAuraByName(spellname, "player") then
-				DARuneFrame.t:SetTexture(select(3, GetSpellInfo(darunebuffs)))
-				DARuneFrame:SetAlpha(module.db.alpha)
-				LCG.PixelGlow_Stop(DARuneFrame)
-				break
-			else
-				DARuneFrame:SetAlpha(1)
-				DARuneFrame.t:SetTexture(select(3, GetSpellInfo(darunebuffs)))
-				if module.db.glow then
-					LCG.PixelGlow_Start(DARuneFrame, color, nil, -0.25, nil, 1)
-				end
-			end
-		end
-	end]]
-
-	if module.db.class then
-		if (intellectbuffs and intellectbuffs[1]) then
-			IntellectFrame.t:SetTexture(select(3, GetSpellInfo(intellectbuffs[1])))
-			for i, intellectbuffs in pairs(intellectbuffs) do
-				local spellname = select(1, GetSpellInfo(intellectbuffs))
-				if AuraUtil_FindAuraByName(spellname, "player") then
-					IntellectFrame.t:SetTexture(select(3, GetSpellInfo(intellectbuffs)))
-					IntellectFrame:SetAlpha(module.db.alpha)
-					LCG.PixelGlow_Stop(IntellectFrame)
-					break
-				else
-					IntellectFrame:SetAlpha(1)
-					IntellectFrame.t:SetTexture(select(3, GetSpellInfo(1459)))
-					if module.db.glow then
-						LCG.PixelGlow_Start(IntellectFrame, color, nil, -0.25, nil, 1)
-					end
-				end
-			end
-		end
-
-		if (staminabuffs and staminabuffs[1]) then
-			StaminaFrame.t:SetTexture(select(3, GetSpellInfo(staminabuffs[1])))
-			for i, staminabuffs in pairs(staminabuffs) do
-				local spellname = select(1, GetSpellInfo(staminabuffs))
-				if AuraUtil_FindAuraByName(spellname, "player") then
-					StaminaFrame.t:SetTexture(select(3, GetSpellInfo(staminabuffs)))
-					StaminaFrame:SetAlpha(module.db.alpha)
-					LCG.PixelGlow_Stop(StaminaFrame)
-					break
-				else
-					StaminaFrame:SetAlpha(1)
-					StaminaFrame.t:SetTexture(select(3, GetSpellInfo(21562)))
-					if module.db.glow then
-						LCG.PixelGlow_Start(StaminaFrame, color, nil, -0.25, nil, 1)
-					end
-				end
-			end
-		end
-
-		if (attackpowerbuffs and attackpowerbuffs[1]) then
-			AttackPowerFrame.t:SetTexture(select(3, GetSpellInfo(attackpowerbuffs[1])))
-			for i, attackpowerbuffs in pairs(attackpowerbuffs) do
-				local spellname = select(1, GetSpellInfo(attackpowerbuffs))
-				if AuraUtil_FindAuraByName(spellname, "player") then
-					AttackPowerFrame.t:SetTexture(select(3, GetSpellInfo(attackpowerbuffs)))
-					AttackPowerFrame:SetAlpha(module.db.alpha)
-					LCG.PixelGlow_Stop(AttackPowerFrame)
-					break
-				else
-					AttackPowerFrame:SetAlpha(1)
-					AttackPowerFrame.t:SetTexture(select(3, GetSpellInfo(6673)))
-					if module.db.glow then
-						LCG.PixelGlow_Start(AttackPowerFrame, color, nil, -0.25, nil, 1)
-					end
-				end
-			end
-		end
-
-		if (versatilitybuffs and versatilitybuffs[1]) then
-			VersatilityFrame.t:SetTexture(select(3, GetSpellInfo(versatilitybuffs[1])))
-			for i, versatilitybuffs in pairs(versatilitybuffs) do
-				local spellname = select(1, GetSpellInfo(versatilitybuffs))
-				if AuraUtil_FindAuraByName(spellname, "player") then
-					VersatilityFrame.t:SetTexture(select(3, GetSpellInfo(versatilitybuffs)))
-					VersatilityFrame:SetAlpha(module.db.alpha)
-					LCG.PixelGlow_Stop(VersatilityFrame)
-					break
-				else
-					VersatilityFrame:SetAlpha(1)
-					VersatilityFrame.t:SetTexture(select(3, GetSpellInfo(1126)))
-					if module.db.glow then
-						LCG.PixelGlow_Start(VersatilityFrame, color, nil, -0.25, nil, 1)
-					end
-				end
-			end
-		end
-
-		if (cooldowns and cooldowns[1]) then
-			CooldownFrame.t:SetTexture(select(3, GetSpellInfo(cooldowns[1])))
-			for i, cooldowns in pairs(cooldowns) do
-				local spellname = select(1, GetSpellInfo(cooldowns))
-				if AuraUtil_FindAuraByName(spellname, "player") then
-					CooldownFrame.t:SetTexture(select(3, GetSpellInfo(cooldowns)))
-					CooldownFrame:SetAlpha(module.db.alpha)
-					LCG.PixelGlow_Stop(CooldownFrame)
-				else
-					CooldownFrame:SetAlpha(1)
-					CooldownFrame.t:SetTexture(select(3, GetSpellInfo(381748)))
-					if module.db.glow then
-						LCG.PixelGlow_Start(CooldownFrame, color, nil, -0.25, nil, 1)
-					end
-				end
-			end
-		end
-	end
-
-	--[[
-	if (weaponEnch and weaponEnch[1]) then
-		local hasMainHandEnchant, _, _, mainHandEnchantID, hasOffHandEnchant, _, _, offHandEnchantId = GetWeaponEnchantInfo()
-		if (hasMainHandEnchant and EnchantsID(mainHandEnchantID)) or (hasOffHandEnchant and EnchantsID(offHandEnchantId)) then
-			WeaponFrame.t:SetTexture(GetInventoryItemTexture('player', 16))
-			WeaponFrame:SetAlpha(module.db.alpha)
-			LCG.PixelGlow_Stop(WeaponFrame)
-		else
-			WeaponFrame:SetAlpha(1)
-			WeaponFrame.t:SetTexture(GetInventoryItemTexture('player', 16))
-			if module.db.glow then
-				LCG.PixelGlow_Start(WeaponFrame, color, nil, -0.25, nil, 1)
-			end
-		end
-	end]]
-
-	if custombuffs and custombuffs[1] then
-		for i, custombuffs in pairs(custombuffs) do
-			local name, _, icon = GetSpellInfo(custombuffs)
-			if i == 1 then
-				CustomFrame.t:SetTexture(icon)
-			end
-
-			if F.CheckPlayerBuff(name) then
-				CustomFrame:SetAlpha(module.db.alpha)
-				custom = true
-				LCG.PixelGlow_Stop(CustomFrame)
-				break
-			else
-				CustomFrame:SetAlpha(1)
-				custom = false
-				if module.db.glow then
-					LCG.PixelGlow_Start(CustomFrame, color, nil, -0.25, nil, 1)
-				end
-			end
-		end
-	else
-		CustomFrame:Hide()
-		custom = true
 	end
 end
 
-function module:CreateIconBuff(name, relativeTo, firstbutton)
+local function UpdateBuffFrame(frame, spellList, fallbackSpellID)
+	if not frame then
+		return
+	end
+
+	frame.buffName = nil
+	frame.hasBuff = false
+
+	if not (spellList and spellList[1]) then
+		return
+	end
+
+	local iconID = fallbackSpellID or spellList[1]
+	local iconTexture = iconID and select(3, GetSpellInfo(iconID))
+	if iconTexture then
+		frame.t:SetTexture(iconTexture)
+	end
+
+	local defaultName = GetTooltipName(spellList, fallbackSpellID)
+	if defaultName then
+		frame.defaultName = defaultName
+	end
+
+	for _, spellID in ipairs(spellList) do
+		local spellname = select(1, GetSpellInfo(spellID))
+		if spellname and AuraUtil_FindAuraByName(spellname, "player") then
+			frame.buffName = spellname
+			frame.hasBuff = true
+			local texture = select(3, GetSpellInfo(spellID))
+			if texture then
+				frame.t:SetTexture(texture)
+			end
+			frame:SetAlpha(module.db.alpha)
+			LCG.PixelGlow_Stop(frame)
+			return
+		end
+	end
+
+	frame:SetAlpha(1)
+	if module.db and module.db.glow then
+		LCG.PixelGlow_Start(frame, color, nil, -0.25, nil, 1)
+	end
+end
+
+local function CancelBuff(frame)
+	if not (frame and frame.hasBuff and frame.buffName) then
+		return
+	end
+
+	for i = 1, 40 do
+		local name = UnitBuff("player", i)
+		if name and name == frame.buffName then
+			CancelUnitBuff("player", i)
+			break
+		end
+	end
+end
+local function OnAuraChange(self, event, arg1, unit)
+	if (event == "UNIT_AURA" and arg1 ~= "player") then return end
+
+	module.db = module.db or (E.db.mui and E.db.mui.raidBuffs)
+	if not module.db then
+		return
+	end
+
+	if flaskbuffs and flaskbuffs[1] then
+		UpdateBuffFrame(FlaskFrame, flaskbuffs)
+	end
+
+	if foodbuffs and foodbuffs[1] then
+		UpdateBuffFrame(FoodFrame, foodbuffs)
+	end
+
+	if module.db.class then
+		if intellectbuffs and intellectbuffs[1] then
+			UpdateBuffFrame(IntellectFrame, intellectbuffs, 1459)
+		end
+		if staminabuffs and staminabuffs[1] then
+			UpdateBuffFrame(StaminaFrame, staminabuffs, 21562)
+		end
+		if attackpowerbuffs and attackpowerbuffs[1] then
+			UpdateBuffFrame(AttackPowerFrame, attackpowerbuffs, 6673)
+		end
+		if versatilitybuffs and versatilitybuffs[1] then
+			UpdateBuffFrame(VersatilityFrame, versatilitybuffs, 1126)
+		end
+		if cooldowns and cooldowns[1] then
+			UpdateBuffFrame(CooldownFrame, cooldowns, 381748)
+		end
+	end
+
+	if custombuffs and custombuffs[1] then
+		local foundCustom
+		local customDefaultName
+		for _, spellID in ipairs(custombuffs) do
+			local name, _, icon = GetSpellInfo(spellID)
+			if name and not customDefaultName then
+				customDefaultName = name
+			end
+			if name and icon and not CustomFrame.iconSet then
+				CustomFrame.t:SetTexture(icon)
+				CustomFrame.iconSet = true
+			end
+			if name and F.CheckPlayerBuff(name) then
+				CustomFrame.buffName = name
+				CustomFrame.hasBuff = true
+				CustomFrame:SetAlpha(module.db.alpha)
+				LCG.PixelGlow_Stop(CustomFrame)
+				foundCustom = true
+				break
+			end
+		end
+		if customDefaultName then
+			CustomFrame.defaultName = customDefaultName
+		else
+			CustomFrame.defaultName = L["Custom"]
+		end
+		if not foundCustom then
+			CustomFrame.buffName = nil
+			CustomFrame.hasBuff = false
+			CustomFrame:SetAlpha(1)
+			if module.db.glow then
+				LCG.PixelGlow_Start(CustomFrame, color, nil, -0.25, nil, 1)
+			end
+		end
+		CustomFrame:Show()
+	else
+		CustomFrame:Hide()
+		CustomFrame.buffName = nil
+		CustomFrame.hasBuff = false
+		CustomFrame.iconSet = nil
+		CustomFrame.defaultName = nil
+	end
+end
+
+function module:CreateIconBuff(name, relativeTo, firstbutton, tooltipText)
 	local button = CreateFrame("Button", name, module.frame)
 
 	if firstbutton == true then
@@ -322,21 +335,48 @@ function module:CreateIconBuff(name, relativeTo, firstbutton)
 	button.t:SetTexCoord(unpack(E.TexCoords))
 	button.t:SetPoint("TOPLEFT", 2, -2)
 	button.t:SetPoint("BOTTOMRIGHT", -2, 2)
+
+	button:SetScript("OnEnter", BuffFrame_OnEnter)
+	button:SetScript("OnLeave", BuffFrame_OnLeave)
+	button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button:SetScript("OnMouseUp", function(self, button)
+		if button == "RightButton" then
+			CancelBuff(self)
+		end
+	end)
+	button.defaultName = tooltipText or name
 end
 
 function module:Visibility()
-	if module.db.enable then
-		RegisterStateDriver(self.frame, "visibility", module.db.visibility == "CUSTOM" and module.db.customVisibility or module.VisibilityStates[module.db.visibility])
-		E:EnableMover(self.frame.mover:GetName())
+	local db = module.db or (E.db.mui and E.db.mui.raidBuffs)
+	if not db then
+		return
+	end
+
+	module.db = db
+
+	local frame = self.frame
+	if not frame then
+		return
+	end
+
+	local mover = frame.mover
+	if db.enable then
+		RegisterStateDriver(frame, "visibility", db.visibility == "CUSTOM" and db.customVisibility or module.VisibilityStates[db.visibility])
+		if mover then
+			E:EnableMover(mover:GetName())
+		end
 	else
-		UnregisterStateDriver(self.frame, "visibility")
-		self.frame:Hide()
-		E:DisableMover(self.frame.mover:GetName())
+		UnregisterStateDriver(frame, "visibility")
+		frame:Hide()
+		if mover then
+			E:DisableMover(mover:GetName())
+		end
 	end
 end
 
 function module:Initialize()
-	if not E.Retail then return end
+	if not (E.Retail or E.Classic or E.TBC) then return end
 
 	module.db = E.db.mui.raidBuffs
 	if not module.db.enable then return end
@@ -351,22 +391,22 @@ function module:Initialize()
 	self.frame:CreatePanel("Invisible", (E.db.mui.raidBuffs.size * 6) + 15, E.db.mui.raidBuffs.size + 4, "TOPLEFT", RaidBuffAnchor, "TOPLEFT", 0, 4)
 
 	if module.db.class then
-		self:CreateIconBuff("IntellectFrame", RaidBuffReminder, true)
-		self:CreateIconBuff("StaminaFrame", IntellectFrame, false)
-		self:CreateIconBuff("AttackPowerFrame", StaminaFrame, false)
-		self:CreateIconBuff("VersatilityFrame", AttackPowerFrame, false)
-		self:CreateIconBuff("FlaskFrame", VersatilityFrame, false)
-		self:CreateIconBuff("FoodFrame", FlaskFrame, false)
-		self:CreateIconBuff("CooldownFrame", FoodFrame, false)
+		self:CreateIconBuff("IntellectFrame", RaidBuffReminder, true, GetTooltipName(intellectbuffs, 1459))
+		self:CreateIconBuff("StaminaFrame", IntellectFrame, false, GetTooltipName(staminabuffs, 21562))
+		self:CreateIconBuff("AttackPowerFrame", StaminaFrame, false, GetTooltipName(attackpowerbuffs, 6673))
+		self:CreateIconBuff("VersatilityFrame", AttackPowerFrame, false, GetTooltipName(versatilitybuffs, 1126))
+		self:CreateIconBuff("FlaskFrame", VersatilityFrame, false, GetTooltipName(flaskbuffs))
+		self:CreateIconBuff("FoodFrame", FlaskFrame, false, GetTooltipName(foodbuffs))
+		self:CreateIconBuff("CooldownFrame", FoodFrame, false, GetTooltipName(cooldowns, 381748))
 		-- self:CreateIconBuff("DARuneFrame", FoodFrame, false)
 		-- self:CreateIconBuff("WeaponFrame", DARuneFrame, false)
-		self:CreateIconBuff("CustomFrame", CooldownFrame, false)
+		self:CreateIconBuff("CustomFrame", CooldownFrame, false, GetTooltipName(custombuffs) or L["Custom"])
 	else
-		self:CreateIconBuff("FlaskFrame", RaidBuffReminder, true)
-		self:CreateIconBuff("FoodFrame", FlaskFrame, false)
+		self:CreateIconBuff("FlaskFrame", RaidBuffReminder, true, GetTooltipName(flaskbuffs))
+		self:CreateIconBuff("FoodFrame", FlaskFrame, false, GetTooltipName(foodbuffs))
 		-- self:CreateIconBuff("DARuneFrame", FoodFrame, false)
 		-- self:CreateIconBuff("WeaponFrame", DARuneFrame, false)
-		self:CreateIconBuff("CustomFrame", FoodFrame, false)
+		self:CreateIconBuff("CustomFrame", FoodFrame, false, GetTooltipName(custombuffs) or L["Custom"])
 	end
 
 	if E.Retail then

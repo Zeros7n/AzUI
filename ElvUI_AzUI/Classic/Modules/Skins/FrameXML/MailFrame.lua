@@ -41,6 +41,9 @@ local function LoadSkin()
 	end)
 
 	local MailFrame = _G.MailFrame
+	if not MailFrame.backdrop then
+		MailFrame:CreateBackdrop("Transparent")
+	end
 	MailFrame.backdrop:Styling()
 	module:CreateBackdropShadow(MailFrame)
 

@@ -1,4 +1,4 @@
-local MER, F, E, L, V, P, G = unpack(ElvUI_AzUI)
+﻿local MER, F, E, L, V, P, G = unpack(ElvUI_AzUI)
 local options = MER.options.general.args
 
 options.name = {
@@ -29,7 +29,7 @@ options.name = {
 			order = 4,
 			type = "toggle",
 			name = L["GameMenu"],
-			desc = L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzLogo, Logo, Bars)"],
+			desc = L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzUI_Banner, Logo, Bars)"],
 		},
 		FlightPoint = {
 			order = 5,

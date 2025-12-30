@@ -215,19 +215,17 @@ function F.GradientColors(unitclass, invert, alpha)
 			return {r = color.r1, g = color.g1, b = color.b1, a = alpha or 1}, {r = color.r2, g = color.g2, b = color.b2, a = alpha or 1}
 		end
 	else
-		if alpha then
-			if invert then
-				return color.r2, color.g2, color.b2, alpha, color.r1, color.g1, color.b1, alpha
-			else
-				return color.r1, color.g1, color.b1, alpha, color.r2, color.g2, color.b2, alpha
-			end
+		local minColor, maxColor
+		local alphaValue = type(alpha) == 'number' and alpha or 1
+		if invert then
+			minColor = {r = color.r2, g = color.g2, b = color.b2, a = alphaValue}
+			maxColor = {r = color.r1, g = color.g1, b = color.b1, a = alphaValue}
 		else
-			if invert then
-				return color.r2, color.g2, color.b2, color.r1, color.g1, color.b1
-			else
-				return color.r1, color.g1, color.b1, color.r2, color.g2, color.b2
-			end
+			minColor = {r = color.r1, g = color.g1, b = color.b1, a = alphaValue}
+			maxColor = {r = color.r2, g = color.g2, b = color.b2, a = alphaValue}
 		end
+
+		return minColor, maxColor
 	end
 end
 
@@ -241,19 +239,17 @@ function F.GradientColorsCustom(unitclass, invert, alpha)
 			return {r = color.r1, g = color.g1, b = color.b1, a = alpha or 1}, { r = color.r2, g = color.g2, b = color.b2, a = alpha or 1}
 		end
 	else
-		if alpha then
-			if invert then
-				return color.r2, color.g2, color.b2, alpha, color.r1, color.g1, color.b1, alpha
-			else
-				return color.r1, color.g1, color.b1, alpha, color.r2, color.g2, color.b2, alpha
-			end
+		local minColor, maxColor
+		local alphaValue = type(alpha) == 'number' and alpha or 1
+		if invert then
+			minColor = {r = color.r2, g = color.g2, b = color.b2, a = alphaValue}
+			maxColor = {r = color.r1, g = color.g1, b = color.b1, a = alphaValue}
 		else
-			if invert then
-				return color.r2, color.g2, color.b2, color.r1, color.g1, color.b1
-			else
-				return color.r1, color.g1, color.b1, color.r2, color.g2, color.b2
-			end
+			minColor = {r = color.r1, g = color.g1, b = color.b1, a = alphaValue}
+			maxColor = {r = color.r2, g = color.g2, b = color.b2, a = alphaValue}
 		end
+
+		return minColor, maxColor
 	end
 end
 

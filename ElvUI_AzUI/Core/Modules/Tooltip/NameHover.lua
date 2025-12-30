@@ -4,7 +4,12 @@ local MI = MER:GetModule('MER_Misc')
 local CreateFrame = CreateFrame
 local GetCursorPosition = GetCursorPosition
 local GetMouseFocus = GetMouseFocus
-local IsAddOnLoaded = IsAddOnLoaded
+local IsAddOnLoaded = _G.IsAddOnLoaded
+if type(IsAddOnLoaded) ~= "function" then
+	IsAddOnLoaded = function()
+		return false
+	end
+end
 local UnitCanAttack = UnitCanAttack
 local UnitClass = UnitClass
 local UnitExists = UnitExists

@@ -1,4 +1,4 @@
--- Korean localization file for koKR.
+﻿-- Korean localization file for koKR.
 local L = ElvUI[1].Libs.ACL:NewLocale("ElvUI", "koKR")
 
 -- Core
@@ -153,7 +153,7 @@ L["Reset all %s modules."] = "모든 %s 모듈을 리셋합니다."
 
 -- GameMenu
 L["GameMenu"] = true
-L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzLogo, Logo, Bars)"] = true
+L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzUI_Banner, Logo, Bars)"] = true
 
 -- Extended Vendor
 L["Extended Vendor"] = true
