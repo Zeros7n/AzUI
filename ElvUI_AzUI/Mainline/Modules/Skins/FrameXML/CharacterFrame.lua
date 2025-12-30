@@ -4,9 +4,96 @@ local M = E:GetModule('Misc')
 
 local _G = _G
 local CreateColor = CreateColor
+local max = math.max
+local CharacterFrame = _G.CharacterFrame
 
 local ClassSymbolFrame
 local CharacterText
+
+local function CreateMerathilisBackground()
+	if not (CharacterFrame and CharacterFrame:IsObjectType("Frame")) or CharacterFrame.MERBackground then
+		return
+	end
+
+	local background = CreateFrame("Frame", "MER_CharacterBackground", CharacterFrame)
+	background:SetPoint("TOPLEFT", CharacterFrame, "TOPLEFT", 0, 0)
+	background:SetPoint("BOTTOMRIGHT", CharacterFrame, "BOTTOMRIGHT", 0, 0)
+	background:SetFrameLevel(max(CharacterFrame:GetFrameLevel() - 2, 0))
+	background.Texture = background:CreateTexture(nil, "BACKGROUND")
+	background.Texture:SetAllPoints()
+
+	local topLine = CreateFrame("Frame", nil, background)
+	topLine:SetPoint("TOPLEFT", background, 0, -6)
+	topLine:SetPoint("TOPRIGHT", background, 0, -6)
+	topLine:SetHeight(E.mult)
+	topLine.Texture = topLine:CreateTexture(nil, "OVERLAY")
+	topLine.Texture:SetAllPoints()
+
+	local bottomLine = CreateFrame("Frame", nil, background)
+	bottomLine:SetPoint("BOTTOMLEFT", background, 0, 6)
+	bottomLine:SetPoint("BOTTOMRIGHT", background, 0, 6)
+	bottomLine:SetHeight(E.mult)
+	bottomLine.Texture = bottomLine:CreateTexture(nil, "OVERLAY")
+	bottomLine.Texture:SetAllPoints()
+
+	CharacterFrame.MERBackground = background
+	CharacterFrame.MERLines = { top = topLine, bottom = bottomLine }
+
+	local watermark = background:CreateTexture(nil, "ARTWORK")
+	watermark:SetSize(96, 36)
+	watermark:SetPoint("BOTTOMRIGHT", CharacterFrame, -6, 6)
+	watermark:SetTexture(MER.Media.Textures.merathilisLogo or MER.Media.Textures.AzUI_Banner)
+	watermark:SetAlpha(0.28)
+	CharacterFrame.MERWaterMark = watermark
+end
+
+local function UpdateMerathilisBackground()
+	if not (CharacterFrame and CharacterFrame.MERBackground) then
+		return
+	end
+
+	local classKey = "MERATHILISUI-" .. (E.myclass or "WARRIOR")
+	local texture = MER.Media.Backgrounds[classKey] or MER.Media.Backgrounds.BG1 or MER.Media.Backgrounds["BG1"]
+	if texture then
+		CharacterFrame.MERBackground.Texture:SetTexture(texture)
+	end
+
+	local classColor = F.ClassColor(E.myclass, true)
+	local r, g, b = 0.35, 0.35, 0.35
+	if classColor then
+		r, g, b = classColor.r, classColor.g, classColor.b
+	end
+
+	local lines = CharacterFrame.MERLines
+	if lines then
+		lines.top.Texture:SetColorTexture(math.min(r + 0.1, 1), math.min(g + 0.1, 1), math.min(b + 0.1, 1), 0.7)
+		lines.bottom.Texture:SetColorTexture(r * 0.36, g * 0.36, b * 0.36, 0.35)
+	end
+end
+
+local function SetupMerathilisCharacterFrame()
+	CreateMerathilisBackground()
+	UpdateMerathilisBackground()
+	if CharacterFrame and CharacterFrame.DisableDrawLayer then
+		CharacterFrame:DisableDrawLayer("BACKGROUND")
+	end
+	if CharacterFrame then
+		for i = 1, CharacterFrame:GetNumRegions() do
+			local region = select(i, CharacterFrame:GetRegions())
+			if region and region:IsObjectType("Texture") then
+				local texture = region:GetTexture()
+				if texture and texture:find("CharacterFrame") and not texture:find("Portrait") then
+					region:Hide()
+				end
+			end
+		end
+	end
+	if CharacterFrame and not CharacterFrame.MERBackgroundHooked then
+		CharacterFrame:HookScript("OnSizeChanged", UpdateMerathilisBackground)
+		CharacterFrame:HookScript("OnShow", UpdateMerathilisBackground)
+		CharacterFrame.MERBackgroundHooked = true
+	end
+end
 
 local function StatsPane(type)
 	_G.CharacterStatsPane[type]:StripTextures()
@@ -144,6 +231,7 @@ end
 
 function module:CharacterFrame()
 	if not module:CheckDB("character", "character") then
+		SetupMerathilisCharacterFrame()
 		return
 	end
 
@@ -262,6 +350,7 @@ function module:CharacterFrame()
 	module:CreateShadow(_G.ReputationDetailFrame)
 
 	self:AddCharacterIcon()
+	SetupMerathilisCharacterFrame()
 end
 
 module:AddCallback("CharacterFrame")

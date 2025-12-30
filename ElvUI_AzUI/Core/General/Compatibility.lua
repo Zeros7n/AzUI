@@ -8,8 +8,14 @@ local gsub, ipairs, type = gsub, ipairs, type
 local strlen, strsplit = strlen, strsplit
 
 local CreateFrame = CreateFrame
-local IsAddOnLoaded = IsAddOnLoaded
+local IsAddOnLoaded = _G.IsAddOnLoaded
 local GetAddOnEnableState = GetAddOnEnableState
+
+if type(IsAddOnLoaded) ~= "function" then
+	IsAddOnLoaded = function()
+		return false
+	end
+end
 
 local newSignIgnored = [[|TInterface\OptionsFrame\UI-OptionsFrame-NewFeatureIcon:14:14|t]]
 

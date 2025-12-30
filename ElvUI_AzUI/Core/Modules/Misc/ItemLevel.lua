@@ -143,29 +143,32 @@ function module:HookScrappingMachine()
 	end
 end
 
-function module:GetSlotAnchor(index)
-	if not index then return end
-
-	if index <= 5 or index == 9 or index == 15 then
-		return "BOTTOMLEFT", 40, 20
-	elseif index == 16 then
-		return "BOTTOMRIGHT", -40, 2
-	elseif index == 17 then
-		return "BOTTOMLEFT", 40, 2
-	else
-		return "BOTTOMRIGHT", -40, 20
+function module:GetSlotIconTexture(slotFrame)
+	if not slotFrame then
+		return
 	end
+
+	local icon = slotFrame.icon or slotFrame.IconTexture or slotFrame.iconTexture or slotFrame.Icon
+	if not icon and slotFrame.GetName then
+		local name = slotFrame:GetName()
+		if name then
+			icon = _G[name.."IconTexture"] or _G[name.."Icon"]
+		end
+	end
+
+	return icon
 end
 
-function module:CreateItemTexture(slot, relF, x, y)
-	local icon = slot:CreateTexture()
-	icon:SetPoint(relF, x, y)
+function module:CreateItemTexture(slot)
+	local icon = slot:CreateTexture(nil, "OVERLAY")
 	icon:SetSize(14, 14)
+	icon:SetPoint("CENTER", slot, "CENTER")
 	icon:SetTexCoord(unpack(E.TexCoords))
 
 	icon.bg = S:CreateBDFrame(icon, 25)
 	icon.bg:SetFrameLevel(3)
 	icon.bg:Hide()
+	icon:Hide()
 	return icon
 end
 
@@ -178,14 +181,17 @@ function module:CreateItemString(frame, strType)
 			slotFrame.iLvlText = slotFrame:CreateFontString(nil, "OVERLAY")
 			slotFrame.iLvlText:FontTemplate(nil, 10)
 			slotFrame.iLvlText:ClearAllPoints()
-			slotFrame.iLvlText:SetPoint("BOTTOMRIGHT", slotFrame, "BOTTOMRIGHT", 0, 0)
+			slotFrame.iLvlText:SetJustifyH("CENTER")
 
-			local relF, x = module:GetSlotAnchor(index)
+			local iconTexture = module:GetSlotIconTexture(slotFrame)
+			local anchor = iconTexture or slotFrame
+			slotFrame.iLvlText:SetPoint("BOTTOM", anchor, "BOTTOM", 0, 4)
+			slotFrame.iLvlText:SetPoint("LEFT", anchor, "LEFT", 0, 0)
+			slotFrame.iLvlText:SetPoint("RIGHT", anchor, "RIGHT", 0, 0)
+			slotFrame.__itemIcon = iconTexture
+
 			for i = 1, 5 do
-				local offset = (i-1)*18 + 5
-				local iconX = x > 0 and x+offset or x-offset
-				local iconY = index > 15 and 20 or 2
-				slotFrame["textureIcon"..i] = module:CreateItemTexture(slotFrame, relF, iconX, iconY)
+				slotFrame["textureIcon"..i] = module:CreateItemTexture(slotFrame)
 			end
 		-- end
 	end
@@ -198,27 +204,53 @@ local gemSlotBlackList = {
 	[16] = true, [17] = true, [18] = true,
 }
 function module:ItemLevel_UpdateGemInfo(link, unit, index, slotFrame)
-	if not gemSlotBlackList[index] then
-		local info = F.GetItemLevel(link, unit, index, true)
-		if info then
-			local gemStep = 1
-			for i = 1, 5 do
-				local texture = slotFrame["textureIcon"..i]
-				local bg = texture.bg
-				local gem = info.gems and info.gems[gemStep]
-				local color = info.gemsColor and info.gemsColor[gemStep]
-				if gem then
-					texture:SetTexture(gem)
-					if color then
-						bg:SetBackdropBorderColor(color.r, color.g, color.b)
-					else
-						bg:SetBackdropBorderColor(0, 0, 0)
-					end
-					bg:Show()
+	if gemSlotBlackList[index] then
+		return
+	end
 
-					gemStep = gemStep + 1
-				end
+	local info = F.GetItemLevel(link, unit, index, true)
+	if not info or not info.gems then
+		for i = 1, 5 do
+			local texture = slotFrame["textureIcon"..i]
+			if texture then
+				texture:Hide()
+				texture.bg:Hide()
 			end
+		end
+		return
+	end
+
+	for i = 1, 5 do
+		local texture = slotFrame["textureIcon"..i]
+		if texture then
+			texture:Hide()
+			texture.bg:Hide()
+		end
+	end
+
+	local icon = slotFrame.__itemIcon or module:GetSlotIconTexture(slotFrame) or slotFrame
+	local gems = info.gems
+	local totalGems = #gems
+	if totalGems == 0 then
+		return
+	end
+
+	local spacing = 16
+	local startOffset = (totalGems - 1) * spacing * 0.5
+	for gemIndex, gem in ipairs(gems) do
+		local texture = slotFrame["textureIcon"..gemIndex]
+		if texture and gem then
+			local color = info.gemsColor and info.gemsColor[gemIndex]
+			texture:SetTexture(gem)
+			texture:ClearAllPoints()
+			texture:SetPoint("BOTTOM", icon, "BOTTOM", (gemIndex - 1) * spacing - startOffset, 4)
+			if color then
+				texture.bg:SetBackdropBorderColor(color.r, color.g, color.b)
+			else
+				texture.bg:SetBackdropBorderColor(0, 0, 0)
+			end
+			texture.bg:Show()
+			texture:Show()
 		end
 	end
 end

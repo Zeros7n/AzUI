@@ -549,6 +549,7 @@ P.misc = {
 	quickDelete = true,
 	quickMenu = true,
 	tradeTabs = true,
+	combatMeter = true,
 	alreadyKnown = {
 		enable = true,
 		mode = "COLOR",
@@ -575,7 +576,8 @@ P.misc = {
 			["Jewelcrafting"] = false
 		},
 	},
-	missingStats = true,
+	enhancedStats = true,
+	enhancedStatsFilters = {},
 	blockRequest = false,
 }
 

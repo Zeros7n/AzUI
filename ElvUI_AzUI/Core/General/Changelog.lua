@@ -94,7 +94,7 @@ function MER:CreateChangelog()
 	frame.texture = frame:CreateTexture(nil, "BACKGROUND")
 	frame.texture:Point("CENTER", frame, "BOTTOM", 0, 110)
 	frame.texture:Size(128)
-	frame.texture:SetTexture(MER.Media.Textures.AzLogo)
+	frame.texture:SetTexture(MER.Media.Textures.AzUI_Banner)
 	frame.texture:SetAlpha(0.5)
 
 	local icon = CreateFrame("Frame", nil, frame, 'BackdropTemplate')

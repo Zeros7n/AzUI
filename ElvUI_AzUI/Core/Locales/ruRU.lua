@@ -1,4 +1,4 @@
--- Russian localization file for ruRU.
+﻿-- Russian localization file for ruRU.
 local L = ElvUI[1].Libs.ACL:NewLocale("ElvUI", "ruRU")
 
 -- Core
@@ -153,7 +153,7 @@ L["Reset all %s modules."] = "Сбросить все %s модули."
 
 -- GameMenu
 L["GameMenu"] = "Меню игры"
-L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzLogo, Logo, Bars)"] = "Включить/отключить стиль AzUI в игровом меню Blizzard. (например, Пепе, Логотип, Бары)"
+L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzUI_Banner, Logo, Bars)"] = "Включить/отключить стиль AzUI в игровом меню Blizzard. (например, Пепе, Логотип, Бары)"
 
 -- Extended Vendor
 L["Extended Vendor"] = "Расширенный продавец"

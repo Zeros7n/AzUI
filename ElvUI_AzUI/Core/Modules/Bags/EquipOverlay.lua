@@ -129,8 +129,14 @@ local function UpdateBagInformation(clear)
     BuildEquipmentMap(clear)
     for _, container in pairs(module.containers) do
         for _, bagID in ipairs(container.BagIDs) do
-            for slotID = 1, C_Container_GetContainerNumSlots(bagID) do
-                UpdateContainerFrame(container.Bags[bagID][slotID], bagID, slotID)
+            local bagContents = container.Bags[bagID]
+            if bagContents then
+                for slotID = 1, C_Container_GetContainerNumSlots(bagID) do
+                    local frame = bagContents[slotID]
+                    if frame then
+                        UpdateContainerFrame(frame, bagID, slotID)
+                    end
+                end
             end
         end
     end

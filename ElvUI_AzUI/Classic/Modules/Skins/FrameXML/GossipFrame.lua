@@ -85,17 +85,27 @@ local function LoadSkin()
     else
     end
 
-    for i = 1, 4 do
-        local notch = _G["NPCFriendshipStatusBarNotch"..i]
-        if notch then
-            notch:SetColorTexture(0, 0, 0)
-            notch:SetSize(E.mult, 16)
+    local friendshipBar = _G.NPCFriendshipStatusBar
+    if friendshipBar then
+        for i = 1, 4 do
+            local notch = _G["NPCFriendshipStatusBarNotch"..i]
+            if notch then
+                notch:SetColorTexture(0, 0, 0)
+                notch:SetSize(E.mult, 16)
+            end
         end
-    end
-    select(7, _G.NPCFriendshipStatusBar:GetRegions()):Hide()
 
-    _G.NPCFriendshipStatusBar.icon:SetPoint("TOPLEFT", -30, 7)
-    module:CreateBDFrame(_G.NPCFriendshipStatusBar, .25)
+        local region = select(7, friendshipBar:GetRegions())
+        if region then
+            region:Hide()
+        end
+
+        if friendshipBar.icon then
+            friendshipBar.icon:SetPoint("TOPLEFT", -30, 7)
+        end
+
+        module:CreateBDFrame(friendshipBar, .25)
+    end
 
     if not IsAddOnLoaded("ElvUI_SLE") then
         MER.NPC:Register(GossipFrame)

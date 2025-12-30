@@ -619,8 +619,9 @@ function module:WeakAuras_ShowOptions()
 		end
 	end
 
-	if frame.iconPicker.frame then
-		for _, child in pairs {frame.iconPicker.frame:GetChildren()} do
+	local iconPicker = frame.iconPicker
+	if iconPicker and iconPicker.frame then
+		for _, child in pairs {iconPicker.frame:GetChildren()} do
 			if child.GetObjectType and child:GetObjectType() == "EditBox" then
 				child.Left:Kill()
 				child.Middle:Kill()

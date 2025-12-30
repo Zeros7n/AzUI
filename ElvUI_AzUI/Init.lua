@@ -191,7 +191,7 @@ do
 		E:Delay(7, self.CheckInstalledVersion, self)
 
 		if isInitialLogin then
-			local icon = Engine[2].GetIconString(self.Media.Textures.AzLogo, 14)
+			local icon = Engine[2].GetIconString(self.Media.Textures.AzUI_Banner, 14)
 			if E.db.mui.core.installed and E.global.mui.core.loginMsg then
 				print(icon..''..self.Title..format('|cff00c0fa%s|r', self.Version)..L[" is loaded. For any issues or suggestions, please visit "]..Engine[2].PrintURL("https://github.com/Az/ElvUI_AzUI/issues"))
 			end

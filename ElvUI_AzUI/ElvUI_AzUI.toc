@@ -1,9 +1,9 @@
 ## Interface: 100105
-## Author: Äz
-## Version: 5.85
+## Author: Az
+## Version: 25.52.1
 ## Title: |cFF1784d1ElvUI|r |cffffffffAz|r|cffff7d0aUI|r
 ## AddonCompartmentFunc: AzUI_OnAddonCompartmentClick
-## IconTexture: Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\m2
+## IconTexture: Interface\AddOns\ElvUI_AzUI\Core\Media\Textures\AzUI_Banner.tga
 ## Notes: A decorative edit for ElvUI + additional features.
 ## Notes-deDE: Eine dekorative Erweiterung für ElvUI + einige zusätzliche Funktionen.
 ## RequiredDeps: ElvUI
@@ -12,11 +12,7 @@
 ## SavedVariablesPerCharacter: MERDataPerChar
 ## OptionalDeps: SharedMedia, BigWigs, ls_Toasts, WeakAuras, WeakAurasOptions
 ## X-Credits: Benik, Blazeflack, Azilroka, Simpy, Nihilistzsche, Darth Predator, fgprodigal, siweia, Solor, Elv, fang2hou & all AddOn Authors who inspired me.
-## X-ElvVersion: 13.93
-## X-Curse-Project-Name: AzUI
-## X-Curse-Project-ID: 97589
-## X-WoWI-ID: 24117
-## X-Wago-ID: VBNBZVNx
+## X-ElvVersion: 14.04
 
 ## X-Interface: 100105
 ## X-Tukui-ProjectID: 1

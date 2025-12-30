@@ -6,8 +6,54 @@ local _G = _G
 local pairs, unpack = pairs, unpack
 
 local CreateFrame = CreateFrame
+local hooksecurefunc = hooksecurefunc
 
 local r, g, b = unpack(E["media"].rgbvaluecolor)
+
+local function HideDefaultTextures(frame)
+	if not frame then
+		return
+	end
+
+	for i = 1, frame:GetNumRegions() do
+		local region = select(i, frame:GetRegions())
+		if region and region:IsObjectType("Texture") then
+			region:SetTexture(nil)
+			region:SetAlpha(0)
+		end
+	end
+end
+
+local function StyleHonorSpecificScrollButton(button)
+	if not button then
+		return
+	end
+
+	local selected = button.SelectedTexture
+	if selected then
+		selected:SetDrawLayer("BACKGROUND")
+		selected:SetColorTexture(r, g, b, .25)
+		selected:SetAllPoints(button)
+	end
+
+	local reward = button.Reward
+	if reward and reward.Icon then
+		reward.Icon:SetTexCoord(unpack(E.TexCoords))
+		if not reward.Icon.bg then
+			local bg = module:CreateBG(reward.Icon)
+			if bg then
+				bg:SetDrawLayer("BACKGROUND", 1)
+			end
+		end
+	end
+end
+
+local function HonorSpecificScrollUpdate(frame)
+	if not frame or not frame.ForEachFrame then
+		return
+	end
+	frame:ForEachFrame(StyleHonorSpecificScrollButton)
+end
 
 local function LoadSkin()
 	if not module:CheckDB("pvp", "pvp") then
@@ -20,6 +66,28 @@ local function LoadSkin()
 	local PVPQueueFrame = _G.PVPQueueFrame
 	local HonorFrame = _G.HonorFrame
 	local ConquestFrame = _G.ConquestFrame
+
+	HideDefaultTextures(_G.PVPUIFrame)
+	HideDefaultTextures(PVPQueueFrame)
+	HideDefaultTextures(HonorFrame)
+	HideDefaultTextures(HonorFrame.BonusFrame)
+
+	HonorFrame:StripTextures()
+	HonorFrame:Styling()
+	module:CreateBackdropShadow(HonorFrame)
+
+	local specificScroll = HonorFrame.SpecificScrollBox
+	if specificScroll then
+		specificScroll:StripTextures()
+		if specificScroll.CreateBackdrop then
+			specificScroll:CreateBackdrop("Transparent")
+		end
+		if specificScroll.ScrollBar then
+			S:HandleTrimScrollBar(specificScroll.ScrollBar)
+		end
+		hooksecurefunc(specificScroll, "Update", HonorSpecificScrollUpdate)
+		HonorSpecificScrollUpdate(specificScroll)
+	end
 
 	local iconSize = 56-2*E.mult
 	for i = 1, 3 do
@@ -52,7 +120,7 @@ local function LoadSkin()
 	BonusFrame.WorldBattlesTexture:Hide()
 	BonusFrame.ShadowOverlay:Hide()
 
-	for _, bonusButton in pairs({"RandomBGButton", "RandomEpicBGButton", "Arena1Button", "BrawlButton", "BrawlButton2", --[["SpecialEventButton"]]}) do
+	for _, bonusButton in pairs({"RandomBGButton", "RandomEpicBGButton", "Arena1Button", "BrawlButton", "BrawlButton2"}) do
 		local button = BonusFrame[bonusButton]
 
 		button.SelectedTexture:SetDrawLayer("BACKGROUND")

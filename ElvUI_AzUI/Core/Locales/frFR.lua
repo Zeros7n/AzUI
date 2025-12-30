@@ -1,4 +1,4 @@
--- French localization file for frFR.
+﻿-- French localization file for frFR.
 local L = ElvUI[1].Libs.ACL:NewLocale("ElvUI", "frFR")
 
 -- Core
@@ -153,7 +153,7 @@ L["Reset all %s modules."] = "Réinitialiser tous les modules %s."
 
 -- GameMenu
 L["GameMenu"] = true
-L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzLogo, Logo, Bars)"] = true
+L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzUI_Banner, Logo, Bars)"] = true
 
 -- Extended Vendor
 L["Extended Vendor"] = true

@@ -1,4 +1,4 @@
--- German localization file for deDE
+﻿-- German localization file for deDE
 local L = ElvUI[1].Libs.ACL:NewLocale("ElvUI", "deDE")
 
 -- Core
@@ -157,7 +157,7 @@ L["Reset all %s modules."] = "Setze alle %s Module zurück."
 
 -- GameMenu
 L["GameMenu"] = "Spielmenü"
-L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzLogo, Logo, Bars)"] = "Aktiviert/Deaktiviert den AzUI Stil aus dem Blizzard Spielmenü. (zB. AzLogo, Logo, Leisten)"
+L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzUI_Banner, Logo, Bars)"] = "Aktiviert/Deaktiviert den AzUI Stil aus dem Blizzard Spielmenü. (zB. AzUI_Banner, Logo, Leisten)"
 
 -- Extended Vendor
 L["Extended Vendor"] = "Erweiterter Händler"

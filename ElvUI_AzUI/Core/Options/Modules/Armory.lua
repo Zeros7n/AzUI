@@ -16,7 +16,9 @@ options.armory = {
 	type = "group",
 	name = L["Armory"],
 	childGroups = "tab",
-	hidden = not E.Wrath,
+	hidden = function()
+		return E.Retail and not (E.Classic or E.Wrath)
+	end,
 	args = {
 		header = {
 			order = 1,

@@ -74,11 +74,19 @@ local function UpdateTab(object, name, rank, texture, hat)
 	tab:SetPoint("TOPLEFT", object, "TOPRIGHT", 1, (-44 * index) + 44)
 
 	tab:DisableDrawLayer("BACKGROUND")
-	tab:SetNormalTexture(texture)
-	tab:GetNormalTexture():ClearAllPoints()
-	tab:GetNormalTexture():SetPoint("TOPLEFT", 2, -2)
-	tab:GetNormalTexture():SetPoint("BOTTOMRIGHT", -2, 2)
-	tab:GetNormalTexture():SetTexCoord(unpack(E.TexCoords))
+
+	local tabNormalTexture = tab:GetNormalTexture()
+	if texture and texture ~= '' then
+		tab:SetNormalTexture(texture)
+		tabNormalTexture = tab:GetNormalTexture()
+	end
+
+	if tabNormalTexture then
+		tabNormalTexture:ClearAllPoints()
+		tabNormalTexture:SetPoint("TOPLEFT", 2, -2)
+		tabNormalTexture:SetPoint("BOTTOMRIGHT", -2, 2)
+		tabNormalTexture:SetTexCoord(unpack(E.TexCoords))
+	end
 
 	tab:CreateBackdrop()
 	tab.backdrop:SetAllPoints()

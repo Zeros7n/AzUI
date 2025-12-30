@@ -16,6 +16,20 @@ local C_CVar_GetCVar = C_CVar.GetCVar
 local C_CVar_GetCVarBool = C_CVar.GetCVarBool
 local C_CVar_SetCVar = C_CVar.SetCVar
 
+local function getEnhancedStatsArgs()
+	if type(MI.GetEnhancedStatsOptionArgs) == "function" then
+		return MI:GetEnhancedStatsOptionArgs()
+	end
+
+	return {
+		_info = {
+			order = 1,
+			type = "description",
+			name = "Enhanced stats configuration is unavailable.",
+		},
+	}
+end
+
 local function GetClassColorString(class)
 	local hexString = select(4, GetClassColor(class))
 	return "|c" .. hexString
@@ -101,17 +115,33 @@ options.general = {
 			type = "description",
 			name = " ",
 		},
-		missingStats = {
-			order = 11,
+		combatMeter = {
+			order = 10.5,
 			type = "toggle",
-			name = L["Missing Stats"],
-			desc = L["Show all stats on the Character Frame"],
+			name = "Combat Meter",
+			desc = "Embed a lightweight combat meter into the right chat panel.",
 		},
-		blockRequest = {
-			order = 12,
-			type = "toggle",
-			name = L["Block Join Requests"],
-			desc = L["|nIf checked, only popout join requests from friends and guild members."]
+	enhancedStats = {
+		order = 11,
+		type = "toggle",
+		name = L["Enhanced Stats"],
+		desc = L["Show all stats on the Character Frame"],
+	},
+	enhancedStatsFilters = {
+		order = 11.5,
+		type = "group",
+		name = L["Enhanced Stats"],
+		inline = true,
+		hidden = function()
+			return not E.db.mui.misc.enhancedStats
+		end,
+		args = getEnhancedStatsArgs(),
+	},
+	blockRequest = {
+		order = 12,
+		type = "toggle",
+		name = L["Block Join Requests"],
+		desc = L["|nIf checked, only popout join requests from friends and guild members."]
 		},
 		randomtoy = {
 			order = 20,

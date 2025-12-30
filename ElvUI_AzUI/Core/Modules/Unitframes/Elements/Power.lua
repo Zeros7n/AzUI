@@ -20,6 +20,32 @@ local powertypes = {
 	["PAIN"] = true,
 }
 
+local function SafeGradient(texture, orientation, minColor, maxColor)
+	if not (texture and minColor) then
+		return
+	end
+	if type(minColor) ~= "table" then
+		return
+	end
+	if type(maxColor) ~= "table" then
+		maxColor = minColor
+	end
+	texture:SetGradient(orientation, minColor, maxColor)
+end
+
+local function SafeGradientAlpha(texture, orientation, minColor, maxColor)
+	if not (texture and minColor) then
+		return
+	end
+	if type(minColor) ~= "table" then
+		return
+	end
+	if type(maxColor) ~= "table" then
+		maxColor = minColor
+	end
+	texture:SetGradientAlpha(orientation, minColor, maxColor)
+end
+
 function module:Configure_Power(frame)
 	local db = frame.db
 	local power = frame.Power
@@ -78,26 +104,32 @@ function module:ApplyUnitGradientPower(unit, name)
 				if E.db.mui.gradient.customColor.enablePower then
 					if unit == "target" then
 						if E.db.unitframe.colors.transparentPower then
+							local minColor, maxColor = F.GradientColorsCustom(powertype, true, true)
 							if not E.Classic then
-								unitframe.Power.backdrop.Center:SetGradient("HORIZONTAL", F.GradientColorsCustom(powertype, true, true))
+								SafeGradient(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor, maxColor)
 							else
-								unitframe.Power.backdrop.Center:SetGradientAlpha("HORIZONTAL", F.GradientColorsCustom(powertype, true, true))
+								SafeGradientAlpha(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor, maxColor)
 							end
 						else
-							unitframe.Power:GetStatusBarTexture():SetGradient("HORIZONTAL", F.GradientColorsCustom(powertype, true, false))
+							local minColor, maxColor = F.GradientColorsCustom(powertype, true, false)
+							SafeGradient(unitframe.Power:GetStatusBarTexture(), "HORIZONTAL", minColor, maxColor)
 						end
 						if not E.db.unitframe.colors.custompowerbackdrop then
-							unitframe.Power.BG:SetGradient("HORIZONTAL", F.GradientColorsCustom(powertype, true, false, true))
+							local minColor, maxColor = F.GradientColorsCustom(powertype, true, false, true)
+							SafeGradient(unitframe.Power.BG, "HORIZONTAL", minColor, maxColor)
 						end
 					else
 						if E.db.unitframe.colors.transparentPower then
 							if not E.Classic then
-								unitframe.Power.backdrop.Center:SetGradient("HORIZONTAL", F.GradientColorsCustom(powertype, false, true))
+								local minColor, maxColor = F.GradientColorsCustom(powertype, false, true)
+								SafeGradient(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor, maxColor)
 							else
-								unitframe.Power.backdrop.Center:SetGradientAlpha("HORIZONTAL", F.GradientColorsCustom(powertype, false, true))
+								local minColor, maxColor = F.GradientColorsCustom(powertype, false, true)
+								SafeGradientAlpha(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor, maxColor)
 							end
 						else
-							unitframe.Power:GetStatusBarTexture():SetGradient("HORIZONTAL", F.GradientColorsCustom(powertype, false, false))
+							local minColor, maxColor = F.GradientColorsCustom(powertype, false, false)
+							SafeGradient(unitframe.Power:GetStatusBarTexture(), "HORIZONTAL", minColor, maxColor)
 						end
 						-- if not E.db.unitframe.colors.custompowerbackdrop then
 							-- unitframe.Power.BG:SetGradient("HORIZONTAL", F.GradientColorsCustom(powertype, false, false, true))
@@ -106,41 +138,34 @@ function module:ApplyUnitGradientPower(unit, name)
 				else
 					if unit == "target" then
 						if E.db.unitframe.colors.transparentPower then
+							local minColor, maxColor = F.GradientColors(powertype, true, true)
 							if not E.Classic then
-								unitframe.Power.backdrop.Center:SetGradient("HORIZONTAL", F.GradientColors(powertype, true, true))
+								SafeGradient(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor, maxColor)
 							else
-								unitframe.Power.backdrop.Center:SetGradientAlpha("HORIZONTAL", F.GradientColors(powertype, true, true))
+								SafeGradientAlpha(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor, maxColor)
 							end
 						else
-							unitframe.Power:GetStatusBarTexture():SetGradient("HORIZONTAL", F.GradientColors(powertype, true, false))
+							local minColor, maxColor = F.GradientColors(powertype, true, false)
+							SafeGradient(unitframe.Power:GetStatusBarTexture(), "HORIZONTAL", minColor, maxColor)
 						end
 						if not E.db.unitframe.colors.custompowerbackdrop then
-							unitframe.Power.BG:SetGradient("HORIZONTAL", F.GradientColors(powertype, true, false, true))
+							local minColor, maxColor = F.GradientColors(powertype, true, false, true)
+							SafeGradient(unitframe.Power.BG, "HORIZONTAL", minColor, maxColor)
 						end
 					else
 						if E.db.unitframe.colors.transparentPower then
+							local minColor, maxColor = F.GradientColors(powertype, false, false)
+							SafeGradient(unitframe.Power:GetStatusBarTexture(), "HORIZONTAL", minColor, maxColor)
+							local minColor2, maxColor2 = F.GradientColors(powertype, false, true)
 							if not E.Classic then
-								unitframe.Power:GetStatusBarTexture():SetGradient("HORIZONTAL", F.GradientColors(powertype, false, false))
-								unitframe.Power.backdrop.Center:SetGradient("HORIZONTAL", F.GradientColors(powertype, false, true))
+								SafeGradient(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor2, maxColor2)
 							else
-local minColor, maxColor = F.GradientColors(powertype, false, true)
-local defaultColor = { r = 0, g = 0, b = 0, a = 1 } -- A safe default (black, fully opaque)
-if type(minColor) ~= "table" then minColor = defaultColor end
-if type(maxColor) ~= "table" then maxColor = defaultColor end
--- Call the standard SetGradient method with both the min and max colors
-unitframe.Power.backdrop.Center:SetGradient("HORIZONTAL", minColor, maxColor)
+								SafeGradientAlpha(unitframe.Power.backdrop.Center, "HORIZONTAL", minColor2, maxColor2)
 							end
 						else
-local minColor, maxColor = F.GradientColors(powertype, false, true)
-local defaultColor = { r = 0, g = 0, b = 0, a = 1 } -- A safe default (black, fully opaque)
-if type(minColor) ~= "table" then minColor = defaultColor end
-if type(maxColor) ~= "table" then maxColor = defaultColor end
--- Call the standard SetGradient method with both the min and max colors
-unitframe.Power.backdrop.Center:SetGradient("HORIZONTAL", minColor, maxColor)
+							local minColor, maxColor = F.GradientColors(powertype, false, false)
+							SafeGradient(unitframe.Power:GetStatusBarTexture(), "HORIZONTAL", minColor, maxColor)
 						end
-						-- if not E.db.unitframe.colors.custompowerbackdrop then
-							-- unitframe.Power.BG:SetGradient("HORIZONTAL", F.GradientColors(powertype, false, false, true))
-						-- end
 					end
 				end
 			end

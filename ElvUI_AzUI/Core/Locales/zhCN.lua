@@ -1,4 +1,4 @@
--- Simplified Chinese localization file for zhCN
+﻿-- Simplified Chinese localization file for zhCN
 local L = ElvUI[1].Libs.ACL:NewLocale("ElvUI", "zhCN")
 
 -- Core
@@ -156,7 +156,7 @@ L["Reset all %s modules."] = "重置全部 %s 模块."
 
 -- GameMenu
 L["GameMenu"] = "游戏菜单"
-L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzLogo, Logo, Bars)"] = "从暴雪游戏菜单启用/禁用AzUI样式."
+L["Enable/Disable the AzUI Style from the Blizzard GameMenu. (e.g. AzUI_Banner, Logo, Bars)"] = "从暴雪游戏菜单启用/禁用AzUI样式."
 
 -- Extended Vendor
 L["Extended Vendor"] = true

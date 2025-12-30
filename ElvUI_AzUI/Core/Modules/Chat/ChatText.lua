@@ -490,6 +490,20 @@ local function FlashTabIfNotShown(frame, info, chatType, chatGroup, chatTarget)
 	end
 end
 
+local function StopTabFlash(frame)
+	if frame and _G.FCF_StopAlertFlash then
+		_G.FCF_StopAlertFlash(frame)
+	end
+end
+
+local function ResolveChatFrameFromTab(tab)
+	if not tab then
+		return nil
+	end
+
+	return tab.chatFrame or tab:GetParent() or _G["ChatFrame" .. (tab.GetID and tab:GetID() or "")]
+end
+
 -- From ElvUI Chat
 local function ChatFrame_CheckAddChannel(chatFrame, eventType, channelID)
 	-- This is called in the event that a user receives chat events for a channel that isn't enabled for any chat frames.
@@ -960,7 +974,10 @@ function CT:ChatFrame_MessageEventHandler(
 			return
 		end
 
-		local chatFilters = _G.ChatFrame_GetMessageEventFilters(event)
+		local chatFilters
+		if _G.ChatFrame_GetMessageEventFilters then
+			chatFilters = _G.ChatFrame_GetMessageEventFilters(event)
+		end
 		if chatFilters then
 			for _, filterFunc in next, chatFilters do
 				local filter,
@@ -1930,6 +1947,19 @@ function CT:Initialize()
 	self:ToggleReplacement()
 	self:CheckLFGRoles()
 	self:BetterSystemMessage()
+
+	if _G.FCF_SelectDockFrame then
+		hooksecurefunc("FCF_SelectDockFrame", function(...)
+			local frame = select(1, ...)
+			StopTabFlash(frame)
+		end)
+	end
+
+	if _G.FCF_Tab_OnClick then
+		hooksecurefunc("FCF_Tab_OnClick", function(tab)
+			StopTabFlash(ResolveChatFrameFromTab(tab))
+		end)
+	end
 
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("BN_FRIEND_INFO_CHANGED")

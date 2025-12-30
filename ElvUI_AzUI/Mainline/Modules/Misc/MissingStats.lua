@@ -11,10 +11,64 @@ local PaperDollFrame_SetLabelAndText = PaperDollFrame_SetLabelAndText
 local STAT_HASTE = STAT_HASTE
 local HIGHLIGHT_FONT_COLOR_CODE, FONT_COLOR_CODE_CLOSE = HIGHLIGHT_FONT_COLOR_CODE, FONT_COLOR_CODE_CLOSE
 
+local hideStatsPaneFrame
+
+local function SealBlizzardFrame(frame)
+	if not frame or frame.MERHidden then
+		return
+	end
+
+	local hiddenParent = E.HiddenFrame or _G.UIParent
+	frame:EnableMouse(false)
+	frame:ClearAllPoints()
+	frame:SetParent(hiddenParent)
+	frame:SetPoint("CENTER", hiddenParent, "CENTER")
+	frame:SetScale(0.0001)
+	frame:SetAlpha(0)
+	frame:SetSize(1, 1)
+	frame:Hide()
+	frame.Show = E.noop
+	frame.Hide = E.noop
+	frame.SetShown = E.noop
+	frame.MERHidden = true
+	frame:HookScript("OnShow", function(self) self:Hide() end)
+end
+
+local function HideBlizzardStatsPane()
+	SealBlizzardFrame(_G.CharacterStatsPane)
+	SealBlizzardFrame(_G.CharacterAttributesFrame)
+	SealBlizzardFrame(_G.CharacterFrameInsetRight)
+end
+
+local function QueueHideBlizzardStatsPane()
+	local statsPane = _G.CharacterStatsPane
+	if statsPane then
+		HideBlizzardStatsPane()
+		return
+	end
+
+	if hideStatsPaneFrame then
+		return
+	end
+
+	hideStatsPaneFrame = CreateFrame("Frame")
+	hideStatsPaneFrame:RegisterEvent("ADDON_LOADED")
+	hideStatsPaneFrame:SetScript("OnEvent", function(self, _, addon)
+		if addon == "Blizzard_CharacterFrame" then
+			HideBlizzardStatsPane()
+			self:UnregisterEvent("ADDON_LOADED")
+			self:SetScript("OnEvent", nil)
+			hideStatsPaneFrame = nil
+		end
+	end)
+end
+
 function module:MissingStats()
 	if not E.db.mui.misc.missingStats or not (E.private.skins.blizzard.enable and E.private.skins.blizzard.character) or not (E.private.mui.skins.blizzard.enable and E.private.mui.skins.blizzard.character) or IsAddOnLoaded("DejaCharacterStats") then
 		return
 	end
+
+	QueueHideBlizzardStatsPane()
 
 	local statPanel = CreateFrame("Frame", nil, _G.CharacterFrameInsetRight)
 	statPanel:SetSize(200, 350)
@@ -28,12 +82,6 @@ function module:MissingStats()
 	local stat = CreateFrame("Frame", nil, scrollFrame)
 	stat:SetSize(200, 1)
 	scrollFrame:SetScrollChild(stat)
-	_G.CharacterStatsPane:ClearAllPoints()
-	_G.CharacterStatsPane:SetParent(stat)
-	_G.CharacterStatsPane:SetAllPoints(stat)
-	hooksecurefunc("PaperDollFrame_UpdateSidebarTabs", function()
-		statPanel:SetShown(_G.CharacterStatsPane:IsShown())
-	end)
 
 	-- Change default data
 	PAPERDOLL_STATCATEGORIES = {

@@ -725,16 +725,43 @@ function F.CreateMovableButtons(Order, Name, CanRemove, db, key)
 			moveItemFrom, moveItemTo = info.obj.value, nil
 		end,
 		dragOnMouseUp = function(info)
-			F.MovableButtonSettings(db, key, moveItemTo, nil, moveItemFrom) --add it in the new spot
+			F.MovableButtonSettings(db, key, moveItemFrom, nil, moveItemTo) --add it in the new spot
 			moveItemFrom, moveItemTo = nil, nil
 		end,
-		stateSwitchGetText = function(info, TEXT)
-			local text = GetItemInfo(tonumber(TEXT))
-			info.userdata.text = text
-			return text
+		dragGetTitle = function(_, text, value)
+			local display
+			if text and text ~= "" then
+				local itemID = tonumber(text)
+				if itemID then
+					local ok, itemName = pcall(GetItemInfo, itemID)
+					if ok and itemName then
+						display = itemName
+					end
+				end
+				if not display then
+					display = text
+				end
+			end
+
+			if not display and type(value) == "string" and value ~= "" then
+				display = value
+			elseif not display and type(value) == "number" then
+				display = tostring(value)
+			end
+
+			return display or ""
 		end,
-		stateSwitchOnClick = function(info)
-			F.MovableButtonSettings(db, key, moveItemFrom)
+		dragOnClick = function(frame, button)
+			local value = frame and frame.obj and frame.obj.value
+			if not value or value == "" then return end
+
+			if button == "RightButton" then
+				if CanRemove then
+					F.MovableButtonSettings(db, key, value, true)
+				end
+			else
+				F.MovableButtonSettings(db, key, value)
+			end
 		end,
 		values = function()
 			local str = db[key]
@@ -749,12 +776,6 @@ function F.CreateMovableButtons(Order, Name, CanRemove, db, key)
 		end,
 		set = function(info, value) end,
 	}
-
-	if CanRemove then --This allows to remove
-		config.dragOnClick = function(info)
-			F.MovableButtonSettings(db, key, moveItemFrom, true)
-		end
-	end
 
 	return config
 end

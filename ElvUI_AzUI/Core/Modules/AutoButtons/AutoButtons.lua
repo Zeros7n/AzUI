@@ -337,12 +337,17 @@ function module:SetUpButton(button, itemData, slotID, waitGroup)
     button.spellName = nil
     button.slotID = nil
     button.countText = nil
+    button.isProtectedItem = false
 
     if itemData then
-        button.itemID = itemData.itemID
-        button.countText = GetItemCount(itemData.itemID, nil, true)
+        local itemID = tonumber(itemData.itemID) or itemData.itemID
+        button.itemID = itemID
+        button.countText = GetItemCount(itemID, nil, true)
         button.questLogIndex = itemData.questLogIndex
         button:SetBackdropBorderColor(0, 0, 0)
+        if itemID == 6948 then
+            button.isProtectedItem = true
+        end
 
         waitGroup.count = waitGroup.count + 1
         async.WithItemID(itemData.itemID, function(item)
@@ -387,15 +392,16 @@ function module:SetUpButton(button, itemData, slotID, waitGroup)
         button.count:SetText()
     end
 
-    local OnUpdateFunction
-
     local OnUpdateFunction -- 25.7.2 Fixed GetItemCooldown issue. Previous code incorrectly identified API core as WotLK API, fixed code accounts for retail vs any classic.
 
-    if button.itemID then
+    if button.itemID and not button.isProtectedItem then
         OnUpdateFunction = function(self)
-            -- THIS IS THE NEW CODE TO PREVENT THE ERROR.
-            -- It checks for the Hearthstone item ID and exits the function early.
-            if self.itemID == 6948 then
+            if InCombatLockdown() then
+                return
+            end
+
+            -- Skip protected items like the Hearthstone to avoid action blocked errors.
+            if self.isProtectedItem or self.itemID == 6948 or self.itemName == "Hearthstone" then
                 return
             end
 
@@ -433,6 +439,14 @@ function module:SetUpButton(button, itemData, slotID, waitGroup)
         OnUpdateFunction = function(self)
             local start, duration, enable = GetInventoryItemCooldown("player", self.slotID)
             self.cooldown:SetCooldown(start or 0, duration or 0)
+        end
+    end
+
+    if button.isProtectedItem then
+        OnUpdateFunction = nil
+        if button.cooldown then
+            button.cooldown:SetCooldown(0, 0)
+            button.cooldown:Hide()
         end
     end
 
@@ -492,20 +506,27 @@ function module:SetUpButton(button, itemData, slotID, waitGroup)
     if not InCombatLockdown() then
         button:EnableMouse(true)
         button:Show()
-        button:SetAttribute("type", "macro")
 
-        local macroText
-        if button.slotID then
-            macroText = "/use " .. button.slotID
-        elseif button.itemName then
-            macroText = "/use item:" .. button.itemID
-            if button.itemID == 172347 then
-                macroText = macroText .. "\n/use 5"
+        if button.itemID == 6948 or button.itemName == "Hearthstone" then
+            button:SetAttribute("type", "item")
+            button:SetAttribute("item", "item:" .. button.itemID)
+            button:SetAttribute("macrotext", nil)
+        else
+            button:SetAttribute("type", "macro")
+
+            local macroText
+            if button.slotID then
+                macroText = "/use " .. button.slotID
+            elseif button.itemName then
+                macroText = "/use item:" .. button.itemID
+                if button.itemID == 172347 then
+                    macroText = macroText .. "\n/use 5"
+                end
             end
-        end
 
-        if macroText then
-            button:SetAttribute("macrotext", macroText)
+            if macroText then
+                button:SetAttribute("macrotext", macroText)
+            end
         end
     end
 end
@@ -528,12 +549,17 @@ function module:UpdateButtonSize(button, barDB)
 end
 
 function module:PLAYER_REGEN_ENABLED()
+    self.inCombat = false
     for i = 1, 5 do
         if UpdateAfterCombat[i] then
             self:UpdateBar(i)
             UpdateAfterCombat[i] = false
         end
     end
+end
+
+function module:PLAYER_REGEN_DISABLED()
+    self.inCombat = true
 end
 
 function module:UpdateBarTextOnCombat(i)
@@ -615,6 +641,12 @@ end
 
 function module:UpdateBar(id)
     if not self.db or not self.db["bar" .. id] then
+        return
+    end
+
+    if self.inCombat then
+        UpdateAfterCombat[id] = true
+        self:RegisterEvent("PLAYER_REGEN_ENABLED")
         return
     end
 
@@ -761,6 +793,13 @@ function module:UpdateBar(id)
         button.bind:Point("TOPRIGHT", button, "TOPRIGHT", barDB.bindFont.xOffset, barDB.bindFont.yOffset)
     end
 
+    if InCombatLockdown() then
+        self:UpdateBarTextOnCombat(id)
+        UpdateAfterCombat[id] = true
+        self:RegisterEvent("PLAYER_REGEN_ENABLED")
+        return
+    end
+
     if not bar.register then
         RegisterStateDriver(bar, "visibility", "[petbattle]hide;show")
         bar.register = true
@@ -774,6 +813,12 @@ function module:UpdateBar(id)
     end
 
     local function updateAlpha()
+        if InCombatLockdown() then
+            UpdateAfterCombat[id] = true
+            module:RegisterEvent("PLAYER_REGEN_ENABLED")
+            return
+        end
+
         bar.alphaMin = barDB.alphaMin
         bar.alphaMax = barDB.alphaMax
 
@@ -891,6 +936,7 @@ function module:Initialize()
     self:RegisterEvent("BAG_UPDATE_DELAYED", "UpdateBars")
     self:RegisterEvent("ZONE_CHANGED", "UpdateBars")
     self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "UpdateBars")
+    self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
     if E.Retail then
         self:RegisterEvent("QUEST_WATCH_LIST_CHANGED", "UpdateQuestItem")
