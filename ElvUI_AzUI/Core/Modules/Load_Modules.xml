@@ -12,6 +12,7 @@
 	<Include file="ExtendedVendor\Load_ExtendedVendor.xml"/>
 	<Include file="LocPanel\Load_LocPanel.xml"/>
 	<Include file="Mail\Load_Mail.xml"/>
+	<Include file="SalesLedger\Load_SalesLedger.xml"/>
 	<Include file="Maps\Load_Maps.xml"/>
 	<Include file='MicroBar\Load_MicroBar.xml'/>
 	<Include file="Misc\Load_Misc.xml"/>

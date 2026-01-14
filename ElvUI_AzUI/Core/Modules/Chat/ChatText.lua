@@ -860,10 +860,16 @@ end
 
 function CT:MayHaveBrackets(...)
 	local names = { ... }
-	for i = 1, select("#", ...) do
-		names[i] = not CT.db.removeBrackets and "[" .. names[i] .. "]" or names[i]
+	local count = select("#", ...)
+	for i = 1, count do
+		local name = names[i]
+		if name == nil then
+			names[i] = ""
+		else
+			names[i] = not CT.db.removeBrackets and "[" .. name .. "]" or name
+		end
 	end
-	return unpack(names)
+	return unpack(names, 1, count)
 end
 
 function CT:GetColoredName(event, _, arg2, _, _, _, _, _, arg8, _, _, _, arg12)

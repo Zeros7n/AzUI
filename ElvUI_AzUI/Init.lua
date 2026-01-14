@@ -33,7 +33,7 @@ do
 	-- when packager packages a new version for release
 	-- '5.85' is replaced with the version number
 	-- which is the latest tag
-	Engine.version = '25.8.3'
+	Engine.version = '26.3.1'
 
 	if strfind(Engine.version, 'project%-version') then
 		Engine.version = 'development'
@@ -100,6 +100,7 @@ MER.Modules.RaidMarkers = MER:NewModule('MER_RaidMarkers', 'AceEvent-3.0')
 MER.Modules.RandomToy = MER:NewModule('MER_RandomToy', 'AceEvent-3.0')
 MER.Modules.Rectangle = MER:NewModule('MER_RectangleMinimap', 'AceEvent-3.0', 'AceHook-3.0')
 MER.Modules.Reminder = MER:NewModule('MER_Reminder', 'AceEvent-3.0', 'AceTimer-3.0')
+MER.Modules.SalesLedger = MER:NewModule('MER_SalesLedger', 'AceEvent-3.0', 'AceHook-3.0', 'AceTimer-3.0')
 MER.Modules.Skins = MER:NewModule('MER_Skins', 'AceHook-3.0', 'AceEvent-3.0', 'AceTimer-3.0')
 MER.Modules.SpellAlert = MER:NewModule('MER_SpellAlert', 'AceEvent-3.0')
 MER.Modules.SuperTracker = MER:NewModule('MER_SuperTracker', 'AceHook-3.0', 'AceEvent-3.0')

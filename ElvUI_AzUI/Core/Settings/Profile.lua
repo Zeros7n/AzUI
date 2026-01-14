@@ -161,6 +161,65 @@ P.CombatAlert = {
 	},
 }
 
+P.salesLedger = {
+	enable = true,
+	trackUnclassified = false,
+	position = {
+		point = "CENTER",
+		x = 0,
+		y = 0,
+	},
+	size = {
+		width = 720,
+		height = 420,
+	},
+	purge = {
+		enabled = false,
+		days = 0,
+		mode = "RAW_ONLY",
+		runOnLogin = true,
+	},
+	rollingDays = 7,
+	scopeDefault = "CHAR",
+	datatext = {
+		enable = true,
+		defaultView = "SESSION",
+	},
+	notifications = {
+		enable = true,
+		chat = true,
+		fade = true,
+		combineWindow = 3,
+		font = {
+			name = E.db.general.font,
+			size = 24,
+			style = "OUTLINE",
+		},
+	},
+	filters = {
+		categories = {
+			quest = true,
+			loot = true,
+			vendorSale = true,
+			vendorPurchase = true,
+			auctionSale = true,
+			auctionPurchase = true,
+			auctionExpired = true,
+			auctionCanceled = true,
+			mail = true,
+			trade = true,
+			cod = true,
+			repair = true,
+			taxi = true,
+			training = true,
+			respec = true,
+			guildRepair = true,
+			guildBank = true,
+			other = true,
+		},
+	},
+}
+
 P.cvars = {
 	general = {
 		alwaysCompareItems = false,
@@ -549,7 +608,6 @@ P.misc = {
 	quickDelete = true,
 	quickMenu = true,
 	tradeTabs = true,
-	combatMeter = true,
 	alreadyKnown = {
 		enable = true,
 		mode = "COLOR",

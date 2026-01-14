@@ -26,3 +26,13 @@ G.bags = {
 G.maps = {
 	eventTracker = {}
 }
+
+G.salesLedger = {
+	version = 1,
+	records = {},
+	aggregates = {},
+	auctions = {
+		pending = {},
+	},
+	characters = {},
+}

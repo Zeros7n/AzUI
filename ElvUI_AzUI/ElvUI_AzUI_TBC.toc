@@ -1,4 +1,4 @@
-## Interface: 11508
+## Interface: 20505
 ## Author: Äz
 ## Version: 26.3.1
 ## Title: |cFF1784d1ElvUI|r |Az|r|cffff7d0aUI|r
