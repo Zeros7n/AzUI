@@ -115,12 +115,6 @@ options.general = {
 			type = "description",
 			name = " ",
 		},
-		combatMeter = {
-			order = 10.5,
-			type = "toggle",
-			name = "Combat Meter",
-			desc = "Embed a lightweight combat meter into the right chat panel.",
-		},
 	enhancedStats = {
 		order = 11,
 		type = "toggle",

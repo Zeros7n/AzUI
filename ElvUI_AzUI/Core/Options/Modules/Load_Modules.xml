@@ -15,6 +15,7 @@
 	<Script file='ItemLevel.lua'/>
 	<Script file='LocPanel.lua'/>
 	<Script file='Mail.lua'/>
+	<Script file='SalesLedger.lua'/>
 	<Script file='Maps.lua'/>
 	<Script file='MicroBar.lua'/>
 	<Script file='NamePlates.lua'/>
